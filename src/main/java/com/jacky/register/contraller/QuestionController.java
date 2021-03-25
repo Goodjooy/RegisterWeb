@@ -2,12 +2,15 @@ package com.jacky.register.contraller;
 
 import com.jacky.register.dataHandle.LoggerHandle;
 import com.jacky.register.dataHandle.Result;
+import com.jacky.register.err.NotSelectTypeItemException;
+import com.jacky.register.err.RowNotFoundException;
 import com.jacky.register.models.database.quetionail.ItemType;
 import com.jacky.register.models.database.quetionail.Questionable;
 import com.jacky.register.models.respond.Question;
 import com.jacky.register.server.dbServers.DepartmentServer;
 import com.jacky.register.server.dbServers.QuestionServer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -118,5 +121,12 @@ public class QuestionController {
         server.removeSelectItem(ItemSort, SelectSort);
         // TODO: 2021/3/25 logger
         return Result.okResult(true);
+    }
+
+    @ExceptionHandler({NotSelectTypeItemException.class, RowNotFoundException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<?>handleNotSelectTypeItem(RuntimeException exception){
+        logger .error(exception);
+        return Result.failureResult(exception);
     }
 }

@@ -1,7 +1,7 @@
 package com.jacky.register.server.dbServers;
 
 import com.jacky.register.err.NotSelectTypeItemException;
-import com.jacky.register.err.RowNotFound;
+import com.jacky.register.err.RowNotFoundException;
 import com.jacky.register.models.database.group.DepartmentRepository;
 import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.quetionail.ItemType;
@@ -145,7 +145,7 @@ public class QuestionServer {
         if (result.isPresent()) {
             return result.get();
         } else {
-            throw new RowNotFound("id==`" + id + "` not found in table Questionable");
+            throw new RowNotFoundException("id==`" + id + "` not found in table Questionable");
         }
     }
 
@@ -154,7 +154,7 @@ public class QuestionServer {
         if (result.isPresent()) {
             return result.get();
         } else {
-            throw new RowNotFound("id==`" + id + "` not found in table ItemSort");
+            throw new RowNotFoundException("id==`" + id + "` not found in table ItemSort");
         }
     }
 
@@ -163,7 +163,7 @@ public class QuestionServer {
         if (result.isPresent()) {
             return result.get();
         } else {
-            throw new RowNotFound("id==`" + id + "` not found in table ItemSort");
+            throw new RowNotFoundException("id==`" + id + "` not found in table ItemSort");
         }
     }
 }
