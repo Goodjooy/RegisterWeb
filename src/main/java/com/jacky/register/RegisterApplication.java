@@ -1,13 +1,35 @@
 package com.jacky.register;
 
+import com.jacky.register.models.database.users.SuperAdmin;
+import com.jacky.register.models.database.users.SuperUserRepository;
+import io.lettuce.core.dynamic.annotation.Command;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Example;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class RegisterApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(RegisterApplication.class, args);
+	}
+
+	@Bean
+	public CommandLineRunner init(SuperUserRepository repository, PasswordEncoder encoder){
+		return args -> {
+			SuperAdmin admin=new SuperAdmin();
+			admin.name="temp";
+			admin.email="964413011@qq.com";
+
+			var result=repository.findOne(Example.of(admin));
+			if (result.isEmpty()){
+				admin.password=encoder.encode("123456");
+				repository.save(admin);
+			}
+		};
 	}
 
 }

@@ -1,11 +1,10 @@
-package com.jacky.register.contraller;
+package com.jacky.register.contraller.departmentAdmin.Question;
 
 import com.jacky.register.dataHandle.LoggerHandle;
 import com.jacky.register.dataHandle.Result;
 import com.jacky.register.err.NotSelectTypeItemException;
 import com.jacky.register.err.RowNotFoundException;
 import com.jacky.register.models.database.quetionail.ItemType;
-import com.jacky.register.models.database.quetionail.Questionable;
 import com.jacky.register.models.respond.Question;
 import com.jacky.register.server.dbServers.DepartmentServer;
 import com.jacky.register.server.dbServers.QuestionServer;
@@ -13,17 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 @RestController
-@RequestMapping("/api/question")
-public class QuestionController {
+@RequestMapping("/api/question/control")
+@CrossOrigin
+public class QuestionCreateController {
     @Autowired
     QuestionServer server;
     @Autowired
     DepartmentServer departmentServer;
 
-    LoggerHandle logger =LoggerHandle.newLogger(QuestionController.class);
+    LoggerHandle logger =LoggerHandle.newLogger(QuestionCreateController.class);
 
 
     @GetMapping("/question")

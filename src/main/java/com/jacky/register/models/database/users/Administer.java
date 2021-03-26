@@ -12,7 +12,7 @@ public class Administer {
     String name;
     String stdID;
     String email;
-    String password;
+    public String password;
 
     @ManyToOne(targetEntity = GroupDepartment.class, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
