@@ -1,4 +1,4 @@
-package com.jacky.register.models.respond;
+package com.jacky.register.models.respond.question.control;
 
 import com.jacky.register.models.database.quetionail.choices.SelectSort;
 

@@ -5,7 +5,7 @@ import com.jacky.register.dataHandle.Result;
 import com.jacky.register.err.NotSelectTypeItemException;
 import com.jacky.register.err.RowNotFoundException;
 import com.jacky.register.models.database.quetionail.ItemType;
-import com.jacky.register.models.respond.Question;
+import com.jacky.register.models.respond.question.control.Question;
 import com.jacky.register.server.dbServers.DepartmentServer;
 import com.jacky.register.server.dbServers.QuestionServer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class QuestionCreateController {
     @Autowired
     DepartmentServer departmentServer;
 
-    LoggerHandle logger =LoggerHandle.newLogger(QuestionCreateController.class);
+    LoggerHandle logger = LoggerHandle.newLogger(QuestionCreateController.class);
 
 
     @GetMapping("/question")
@@ -121,10 +121,16 @@ public class QuestionCreateController {
         return Result.okResult(true);
     }
 
+    @PostMapping("/public")
+    public Result<Boolean>publicQuestion(){
+        // TODO: 2021/3/28 visitable problem
+        return null;
+    }
+
     @ExceptionHandler({NotSelectTypeItemException.class, RowNotFoundException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<?>handleNotSelectTypeItem(RuntimeException exception){
-        logger .error(exception);
+    public Result<?> handleNotSelectTypeItem(RuntimeException exception) {
+        logger.error(exception);
         return Result.failureResult(exception);
     }
 }

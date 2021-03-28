@@ -1,9 +1,8 @@
-package com.jacky.register.models.respond;
+package com.jacky.register.models.respond.question.control;
 
 import com.jacky.register.models.database.quetionail.Questionable;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;

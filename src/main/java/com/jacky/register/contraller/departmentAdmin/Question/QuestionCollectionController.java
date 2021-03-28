@@ -1,7 +1,8 @@
 package com.jacky.register.contraller.departmentAdmin.Question;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.jacky.register.models.respond.question.collection.QuestionCollectionData;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 面向用户的收集页面
@@ -9,4 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/question/collection")
 public class QuestionCollectionController {
+
+    @PostMapping("/{id:\\d+}")
+    public void uploadCollection(
+            @RequestBody QuestionCollectionData data,
+            @PathVariable Integer id){
+        // TODO: 2021/3/28 collection data
+    }
 }
