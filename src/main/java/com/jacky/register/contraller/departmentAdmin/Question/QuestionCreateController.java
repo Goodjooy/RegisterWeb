@@ -7,7 +7,7 @@ import com.jacky.register.err.RowNotFoundException;
 import com.jacky.register.models.database.quetionail.ItemType;
 import com.jacky.register.models.respond.question.control.Question;
 import com.jacky.register.server.dbServers.DepartmentServer;
-import com.jacky.register.server.dbServers.QuestionServer;
+import com.jacky.register.server.dbServers.QuestionControlServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 public class QuestionCreateController {
     @Autowired
-    QuestionServer server;
+    QuestionControlServer server;
     @Autowired
     DepartmentServer departmentServer;
 
