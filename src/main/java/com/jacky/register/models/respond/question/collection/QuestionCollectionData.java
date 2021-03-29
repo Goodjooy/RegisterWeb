@@ -1,5 +1,6 @@
 package com.jacky.register.models.respond.question.collection;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jacky.register.err.QuestionNotFoundException;
 import com.jacky.register.models.database.quetionail.QuestionRepository;
 import com.jacky.register.models.database.quetionail.collection.CollectionItem;
@@ -13,9 +14,11 @@ import java.util.stream.Collectors;
 
 //收集表信息
 public class QuestionCollectionData {
-    Integer QuestionID;
-    LocalDateTime time;
-    List<Data>dataList;
+    @JsonIgnoreProperties(allowSetters = true)
+    public Integer QuestionID;
+    @JsonIgnoreProperties(allowSetters = true)
+    public LocalDateTime time;
+   public List<Data>dataList;
 
     public static QuestionCollectionData fromQuestionCollection(QuestionCollection collection){
         QuestionCollectionData data=new QuestionCollectionData();
@@ -29,6 +32,7 @@ public class QuestionCollectionData {
                     d.ItemInfo=collectionItem.item.item.data;
                     d.ItemSelect=collectionItem.selects.stream()
                             .map(collectionItemSelect -> collectionItemSelect.select.sortIndex)
+                            .sorted()
                             .collect(Collectors.toList());
                     return d;
                 }).collect(Collectors.toList());
@@ -50,14 +54,14 @@ public class QuestionCollectionData {
                     CollectionItem item =new CollectionItem();
                     item.item= collection.question.items.stream()
                             .sorted(Comparator.comparing(sort1 -> sort1.sortIndex))
-                            .collect(Collectors.toList()).get(data.ItemID);
+                            .collect(Collectors.toList()).get(data.ItemID-1);
                     item.data=data.ItemInfo;
                     item.selects=data.ItemSelect.stream()
                             .map(integer -> {
 
                                 var v = item.item.item.selects.stream()
                                         .sorted(Comparator.comparing(sort -> sort.sortIndex))
-                                        .collect(Collectors.toList()).get(integer);
+                                        .collect(Collectors.toList()).get(integer-1);
                                 CollectionItemSelect select=new CollectionItemSelect();
                                 select.select=v;
                                 select.value=v.select.information;

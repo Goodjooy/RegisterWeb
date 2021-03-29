@@ -122,9 +122,12 @@ public class QuestionCreateController {
     }
 
     @PostMapping("/public")
-    public Result<Boolean>publicQuestion(){
+    public Result<Boolean>publicQuestion(
+            @RequestParam("id")Integer id
+    ){
         // TODO: 2021/3/28 visitable problem
-        return null;
+        server.publicQuestion(id);
+        return Result.okResult(true);
     }
 
     @ExceptionHandler({NotSelectTypeItemException.class, RowNotFoundException.class})

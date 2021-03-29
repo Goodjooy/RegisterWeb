@@ -54,6 +54,7 @@ public class QuestionControlServer {
 
         question.information = information;
         question.title = title;
+        question.publish=false;
 
         questionRepository.save(question);
         departmentRepository.save(department);
@@ -134,6 +135,12 @@ public class QuestionControlServer {
         selectSortRepository.delete(select);
         itemSelectRepository.delete(select.select);
         itemRepository.save(item.item);
+    }
+
+    public void publicQuestion(Integer id){
+        var q=getQuestionByID(id);
+        q.publish=true;
+        questionRepository.save(q);
     }
 
     public List<Questionable> getALL() {

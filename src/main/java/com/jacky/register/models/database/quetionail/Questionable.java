@@ -29,4 +29,8 @@ public class Questionable {
     @JoinColumn
     public
     GroupDepartment department;
+
+    @Column(nullable = false)
+    public
+    Boolean publish;
 }

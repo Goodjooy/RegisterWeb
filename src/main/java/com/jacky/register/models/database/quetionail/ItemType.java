@@ -9,5 +9,7 @@ public enum ItemType {
 
     MULTI_CHOICE,
     SINGLE_CHOICE,
-    CHECK_BOX
+    CHECK_BOX;
+
+
 }
