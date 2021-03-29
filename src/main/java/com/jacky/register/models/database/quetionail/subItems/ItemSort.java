@@ -11,21 +11,24 @@ import javax.persistence.*;
 public class ItemSort {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-            public
+    public
     Integer id;
     @Column(nullable = false)
-            public
+    public
     Integer sortIndex;
 
     @ManyToOne()
     @JoinColumn()
-            public
+    public
     Questionable question;
 
     @OneToOne()
     @JoinColumn()
-            public
+    public
     QuestionSubItem item;
 
+    @Column(nullable = false)
+    public
+    Boolean require;
 
 }

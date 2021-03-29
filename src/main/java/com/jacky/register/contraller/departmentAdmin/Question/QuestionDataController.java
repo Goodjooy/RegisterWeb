@@ -1,6 +1,7 @@
 package com.jacky.register.contraller.departmentAdmin.Question;
 
 import com.jacky.register.dataHandle.Result;
+import com.jacky.register.models.respond.question.collection.QuestionCollection;
 import com.jacky.register.models.respond.question.collection.QuestionCollectionData;
 import com.jacky.register.server.dbServers.QuestionDataServer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class QuestionDataController {
     QuestionDataServer dataServer;
 
     @GetMapping("/{id:\\d+}")
-    public Result<List<QuestionCollectionData>>getAllCollection(
+    public Result<QuestionCollection>getAllCollection(
             @PathVariable Integer id
     ){
         var result=dataServer.getAllQuestionCollectionData(id);
