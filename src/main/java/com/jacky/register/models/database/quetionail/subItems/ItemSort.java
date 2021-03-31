@@ -1,8 +1,10 @@
 package com.jacky.register.models.database.quetionail.subItems;
 
 import com.jacky.register.models.database.quetionail.Questionable;
+import com.jacky.register.models.database.quetionail.choices.SelectSort;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * 保存元素排序信息
@@ -29,6 +31,10 @@ public class ItemSort {
 
     @Column(nullable = false)
     public
-    Boolean require;
+    Boolean requireFill;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @OrderBy("sort_index")
+    public List<SelectSort>selects;
 
 }

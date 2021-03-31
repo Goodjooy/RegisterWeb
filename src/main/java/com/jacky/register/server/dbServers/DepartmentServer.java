@@ -18,6 +18,13 @@ public class DepartmentServer {
         }else {
             throw new RowNotFoundException("id==`"+id+"` not found in `group_department` table");
         }
-
+    }
+    public GroupDepartment getFirstDepartment(){
+        var result=departmentRepository.findAll();
+        if (!result.isEmpty()){
+            return result.get(0);
+        }else {
+            throw new RowNotFoundException("first item not found in `group_department` table");
+        }
     }
 }

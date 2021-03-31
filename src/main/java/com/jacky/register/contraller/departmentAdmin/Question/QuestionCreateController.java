@@ -4,8 +4,13 @@ import com.jacky.register.dataHandle.LoggerHandle;
 import com.jacky.register.dataHandle.Result;
 import com.jacky.register.err.NotSelectTypeItemException;
 import com.jacky.register.err.RowNotFoundException;
-import com.jacky.register.models.database.quetionail.ItemType;
+import com.jacky.register.models.request.quesion.item.ItemCreate;
+import com.jacky.register.models.request.quesion.item.ItemUpdate;
+import com.jacky.register.models.request.quesion.itemSelect.ItemSelectCreate;
+import com.jacky.register.models.request.quesion.itemSelect.ItemSelectUpdate;
 import com.jacky.register.models.respond.question.control.Question;
+import com.jacky.register.models.respond.question.control.QuestionItem;
+import com.jacky.register.models.respond.question.control.QuestionItemSelect;
 import com.jacky.register.server.dbServers.DepartmentServer;
 import com.jacky.register.server.dbServers.QuestionControlServer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +41,14 @@ public class QuestionCreateController {
         return Result.okResult(result);
     }
 
+
     @PostMapping("/question")
     public Result<Integer> newQuestion(
             @RequestParam("name") String QuestionName,
             @RequestParam(value = "information", defaultValue = "这是一个新的问卷") String information
     ) {
         // TODO: 2021/3/25 save to department base on the auth admin
-        var department = departmentServer.getDepartmentByID(1);
+        var department = departmentServer.getFirstDepartment();
 
         var question = server.newQuestion(department, QuestionName, information);
 
@@ -51,29 +57,24 @@ public class QuestionCreateController {
 
     @PostMapping("/item")
     public Result<Integer> addQuestionItem(
-            @RequestParam("id") Integer id,
-            @RequestParam("information") String information,
-            @RequestParam("type") ItemType type
+            @RequestBody ItemCreate itemCreate
     ) {
         // TODO: 2021/3/25 check the question is under department
 
-        var item = server.newQuestionItem(information, type);
-        var itemSort = server.addQuestionItem(server.getQuestionByID(id), item);
+        var item = server.newQuestionItem(itemCreate);
+        var itemSort = server.addQuestionItem(server.getQuestionByID(itemCreate.questionID), item,itemCreate.data.require);
 
         return Result.okResult(itemSort.sortIndex);
     }
 
     @PutMapping("/item")
     public Result<Integer> updateQuestionItem(
-            @RequestParam("qid") Integer id,
-            @RequestParam("iid") Integer itemId,
-            @RequestParam("information") String information,
-            @RequestParam("type") ItemType type
-
+            @RequestBody ItemUpdate itemUpdate
     ) {
         // TODO: 2021/3/25 check question below the department; check item below question
         // TODO: 2021/3/25 update item :change information/type
-        return null;
+        var sort = server.updateItem(itemUpdate);
+        return Result.okResult(sort.sortIndex);
     }
 
     @DeleteMapping("/item")
@@ -92,16 +93,20 @@ public class QuestionCreateController {
 
     @PostMapping("/select")
     public Result<Integer> addSelectItem(
-            @RequestParam("qid") Integer id,
-            @RequestParam("iid") Integer itemId,
-            @RequestParam("name") String name,
-            @RequestParam(value = "userInsert", defaultValue = "false") boolean userInsert
+            @RequestBody ItemSelectCreate selectCreate
     ) {
         // TODO: 2021/3/25 check question below the department; check item below question
-        var question = server.getQuestionByID(id);
-        var select = server.addItemSelect(server.getItemSortByID(question, itemId).item, name, userInsert);
+        var select = server.addItemSelect(selectCreate);
 
         // TODO: 2021/3/25 logger
+        return Result.okResult(select.sortIndex);
+    }
+
+    @PutMapping("/select")
+    public Result<Integer> updateSelectItem(
+            @RequestBody ItemSelectUpdate selectUpdate
+    ) {
+        var select = server.updateSelect(selectUpdate);
         return Result.okResult(select.sortIndex);
     }
 
@@ -121,10 +126,30 @@ public class QuestionCreateController {
         return Result.okResult(true);
     }
 
+    @PostMapping("/fullQuestion")
+    public Result<Boolean> publicFull(
+            @RequestBody Question question
+    ) {
+        var department = departmentServer.getFirstDepartment();
+        var questionCreate = server.newQuestion(department, question.name, question.information);
+        for (QuestionItem item :
+                question.items) {
+            var newItem = server.newQuestionItem(item.name, item.type);
+            var newITemSort = server.addQuestionItem(questionCreate, newItem,item.require);
+
+            for (QuestionItemSelect select :
+                    item.selects) {
+                server.addItemSelect(newITemSort, select.information, select.userInsert);
+            }
+        }
+        server.publicQuestion(questionCreate.ID);
+        return Result.okResult(true);
+    }
+
     @PostMapping("/public")
-    public Result<Boolean>publicQuestion(
-            @RequestParam("id")Integer id
-    ){
+    public Result<Boolean> publicQuestion(
+            @RequestParam("id") Integer id
+    ) {
         // TODO: 2021/3/28 visitable problem
         server.publicQuestion(id);
         return Result.okResult(true);

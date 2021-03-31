@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 
 /**
  * 面向用户的收集页面
+ * 为用户提供收集表填写功能
  */
 @RestController
 @RequestMapping("/api/question/collection")

@@ -1,5 +1,6 @@
 package com.jacky.register.models.respond.question.control;
 
+import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.quetionail.Questionable;
 
 import java.io.Serializable;
@@ -23,4 +24,5 @@ public class Question implements Serializable {
 
         return question;
     }
+
 }

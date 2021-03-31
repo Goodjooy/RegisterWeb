@@ -14,19 +14,20 @@ import java.util.Set;
 public class GroupDepartment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    public
     Integer ID;
 
     @Column(unique = true,nullable = false,length = 32)
-    String name;
+    public String name;
 
     @Column(nullable = false,length = 225)
-    String information;
+    public String information;
 
     @ManyToMany(mappedBy = "underGroup")
-    Set<Student> members;
+    public Set<Student> members;
 
     @OneToMany(targetEntity = Administer.class,mappedBy = "groupIn")
-    Set<Administer>administers;
+    public Set<Administer>administers;
 
     @OneToMany(targetEntity = Questionable.class)
     public

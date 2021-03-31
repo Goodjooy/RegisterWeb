@@ -51,7 +51,7 @@ public class QuestionCollectionData {
                 .sorted(Comparator.comparing(sort1 -> sort1.sortIndex))
                 .collect(Collectors.toList());
         var requires=collection.question.items.stream()
-                .filter(sort -> sort.require)
+                .filter(sort -> sort.requireFill)
                 .collect(Collectors.toSet());
 
         collection.submitAt = LocalDateTime.now();
@@ -73,7 +73,7 @@ public class QuestionCollectionData {
                     item.selects = data.ItemSelect.stream()
                             .map(integer -> {
 
-                                var v = item.item.item.selects.stream()
+                                var v = item.item.selects.stream()
                                         .sorted(Comparator.comparing(sort -> sort.sortIndex))
                                         .collect(Collectors.toList()).get(integer - 1);
                                 CollectionItemSelect select = new CollectionItemSelect();

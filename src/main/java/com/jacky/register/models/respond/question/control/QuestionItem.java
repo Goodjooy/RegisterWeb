@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class QuestionItem implements Serializable {
     public String name;
     public ItemType type;
+    public Boolean require;
     public List<QuestionItemSelect> selects;
 
     public static QuestionItem fromQuestionSubItem(ItemSort sort) {
@@ -19,10 +20,12 @@ public class QuestionItem implements Serializable {
 
         item.name = rawItem.data;
         item.type = rawItem.type;
-        item.selects = rawItem.selects == null ? null : rawItem.selects
+        item.require=sort.requireFill;
+        item.selects = sort.selects == null ? null : sort.selects
                 .stream().sorted(Comparator.comparing(sort1 -> sort1.sortIndex))
                 .map(QuestionItemSelect::fromItemSelect).collect(Collectors.toList());
 
         return item;
     }
+
 }

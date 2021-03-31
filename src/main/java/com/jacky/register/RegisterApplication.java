@@ -1,5 +1,7 @@
 package com.jacky.register;
 
+import com.jacky.register.models.database.group.DepartmentRepository;
+import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.users.SuperAdmin;
 import com.jacky.register.models.database.users.SuperUserRepository;
 import io.lettuce.core.dynamic.annotation.Command;
@@ -18,8 +20,18 @@ public class RegisterApplication {
 	}
 
 	@Bean
-	public CommandLineRunner init(SuperUserRepository repository, PasswordEncoder encoder){
+	public CommandLineRunner init(SuperUserRepository repository, PasswordEncoder encoder, DepartmentRepository departmentRepository){
 		return args -> {
+
+
+			GroupDepartment department=new GroupDepartment();
+			department.information="测试部门";
+			department.name="测试部门";
+
+			var resultD=departmentRepository.findAll();
+			if(resultD.isEmpty()){
+				departmentRepository.save(department);
+			}
 			SuperAdmin admin=new SuperAdmin();
 			admin.name="temp";
 			admin.email="964413011@qq.com";

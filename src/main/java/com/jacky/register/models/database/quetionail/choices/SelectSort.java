@@ -1,25 +1,25 @@
 package com.jacky.register.models.database.quetionail.choices;
 
-import com.jacky.register.models.database.quetionail.subItems.QuestionSubItem;
+import com.jacky.register.models.database.quetionail.subItems.ItemSort;
 
 import javax.persistence.*;
 
 @Entity
 public class SelectSort {
     @Id
-            @GeneratedValue
+    @GeneratedValue
     Integer id;
     @Column(nullable = false)
-            public
+    public
     Integer sortIndex;
 
     @ManyToOne
     @JoinColumn
-            public
-    QuestionSubItem item;
+    public
+    ItemSort item;
 
     @OneToOne
     @JoinColumn
-            public
+    public
     SubItemSelect select;
 }
