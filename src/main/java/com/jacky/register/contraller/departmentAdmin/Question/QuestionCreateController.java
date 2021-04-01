@@ -2,8 +2,7 @@ package com.jacky.register.contraller.departmentAdmin.Question;
 
 import com.jacky.register.dataHandle.LoggerHandle;
 import com.jacky.register.dataHandle.Result;
-import com.jacky.register.err.NotSelectTypeItemException;
-import com.jacky.register.err.RowNotFoundException;
+import com.jacky.register.err.BaseException;
 import com.jacky.register.models.request.quesion.item.ItemCreate;
 import com.jacky.register.models.request.quesion.item.ItemUpdate;
 import com.jacky.register.models.request.quesion.itemSelect.ItemSelectCreate;
@@ -155,10 +154,10 @@ public class QuestionCreateController {
         return Result.okResult(true);
     }
 
-    @ExceptionHandler({NotSelectTypeItemException.class, RowNotFoundException.class})
+    @ExceptionHandler({BaseException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<?> handleNotSelectTypeItem(RuntimeException exception) {
+    public Result<?> handleNotSelectTypeItem(BaseException exception) {
         logger.error(exception);
-        return Result.failureResult(exception);
+        return exception.toResult();
     }
 }

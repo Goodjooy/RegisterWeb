@@ -1,7 +1,9 @@
 package com.jacky.register.server.dbServers;
 
-import com.jacky.register.err.NotSelectTypeItemException;
-import com.jacky.register.err.RowNotFoundException;
+import com.jacky.register.err.qustion.notFound.ItemNotFoundException;
+import com.jacky.register.err.qustion.notFound.ItemSelectNotFoundException;
+import com.jacky.register.err.qustion.notFound.QuestionNotFoundException;
+import com.jacky.register.err.qustion.typeNotSupport.NotSelectTypeItemException;
 import com.jacky.register.models.database.group.DepartmentRepository;
 import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.quetionail.ItemType;
@@ -100,7 +102,7 @@ public class QuestionControlServer {
     }
     public SelectSort addItemSelect(ItemSort item, String selectName, boolean userInsert) {
         if (item.item.type != ItemType.MULTI_CHOICE && item.item.type != ItemType.SINGLE_CHOICE)
-            throw new NotSelectTypeItemException("问卷子项类型 `" + item.item.type.name() + "` 不可添加选项");
+            throw new NotSelectTypeItemException(item);
 
         SubItemSelect select = new SubItemSelect();
         select.information = selectName;
@@ -191,7 +193,7 @@ public class QuestionControlServer {
         if (result.isPresent()) {
             return result.get();
         } else {
-            throw new RowNotFoundException("id==`" + id + "` not found in table Questionable");
+            throw new QuestionNotFoundException(id);
         }
     }
 
@@ -200,7 +202,7 @@ public class QuestionControlServer {
         if (result.isPresent()) {
             return result.get();
         } else {
-            throw new RowNotFoundException("id==`" + id + "` not found in table ItemSort");
+            throw new ItemNotFoundException(questionable,id);
         }
     }
 
@@ -209,7 +211,7 @@ public class QuestionControlServer {
         if (result.isPresent()) {
             return result.get();
         } else {
-            throw new RowNotFoundException("id==`" + id + "` not found in table ItemSort");
+            throw new ItemSelectNotFoundException(itemSort,id);
         }
     }
 
@@ -218,16 +220,13 @@ public class QuestionControlServer {
         if (result.isPresent()) {
             return result.get();
         }
-        throw new RowNotFoundException(String.format("questionID=%s | itemID=%s | SelectID=%s Not Found",
-                questionID, itemID,
-                selectID));
+        throw new ItemSelectNotFoundException(questionID,itemID,selectID);
     }
     public ItemSort getItemSortByID(int questionID, int itemID) {
         var result = itemSortRepository.findIByQuestionIDAndSortIndex(questionID, itemID);
         if (result.isPresent()) {
             return result.get();
         }
-        throw new RowNotFoundException(String.format("questionID=%s | itemID=%s  Not Found",
-                questionID, itemID));
+        throw new ItemNotFoundException(questionID,itemID);
     }
 }
