@@ -1,5 +1,6 @@
 package com.jacky.register.contraller.departmentAdmin.Question;
 
+import com.jacky.register.dataHandle.Info;
 import com.jacky.register.dataHandle.LoggerHandle;
 import com.jacky.register.dataHandle.Result;
 import com.jacky.register.err.BaseException;
@@ -15,6 +16,8 @@ import com.jacky.register.server.dbServers.QuestionControlServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/question/control")
@@ -32,11 +35,13 @@ public class QuestionCreateController {
     public Result<Question> getQuestion(
             @RequestParam("id") Integer id
     ) {
+        logger.dataAccept(Info.of(id, "QuestionID"));
         // TODO: 2021/3/25 check department has target question
         var question = server.getQuestionByID(id);
         var result = Question.fromQuestion(question);
 
-        // TODO: 2021/3/25 logger cover
+        logger.SuccessOperate("Get Question By ID",
+                Info.of(id, "QuestionID"));
         return Result.okResult(result);
     }
 
@@ -48,9 +53,12 @@ public class QuestionCreateController {
     ) {
         // TODO: 2021/3/25 save to department base on the auth admin
         var department = departmentServer.getFirstDepartment();
-
         var question = server.newQuestion(department, QuestionName, information);
 
+        logger.SuccessOperate("New Question",
+                Info.of(question.ID, "NewQuestionID"),
+                Info.of(QuestionName, "NewQuestionName"),
+                Info.of(information, "QuestionInformation"));
         return Result.okResult(question.ID);
     }
 
@@ -61,8 +69,15 @@ public class QuestionCreateController {
         // TODO: 2021/3/25 check the question is under department
 
         var item = server.newQuestionItem(itemCreate);
-        var itemSort = server.addQuestionItem(server.getQuestionByID(itemCreate.questionID), item,itemCreate.data.require);
+        var itemSort = server
+                .addQuestionItem(
+                        server.getQuestionByID(itemCreate.questionID),
+                        item,
+                        itemCreate.data.require);
 
+        logger.SuccessOperate("Add Item To Question",
+                Info.of(itemCreate.questionID, "QuestionID"),
+                Info.of(itemSort.sortIndex, "NewItemID"));
         return Result.okResult(itemSort.sortIndex);
     }
 
@@ -71,8 +86,11 @@ public class QuestionCreateController {
             @RequestBody ItemUpdate itemUpdate
     ) {
         // TODO: 2021/3/25 check question below the department; check item below question
-        // TODO: 2021/3/25 update item :change information/type
         var sort = server.updateItem(itemUpdate);
+
+        logger.SuccessOperate("Update Item In Question",
+                Info.of(itemUpdate.questionID, "QuestionID"),
+                Info.of(itemUpdate.itemSortID, "ItemSortID"));
         return Result.okResult(sort.sortIndex);
     }
 
@@ -85,8 +103,9 @@ public class QuestionCreateController {
         var question = server.getQuestionByID(id);
         server.removeItem(question, server.getItemSortByID(question, itemId));
 
-        // TODO: 2021/3/25 logger
-
+        logger.SuccessOperate("Remove Item In Question",
+                Info.of(id,"QuestionID"),
+                Info.of(itemId,"ItemID"));
         return Result.okResult(true);
     }
 
@@ -97,7 +116,9 @@ public class QuestionCreateController {
         // TODO: 2021/3/25 check question below the department; check item below question
         var select = server.addItemSelect(selectCreate);
 
-        // TODO: 2021/3/25 logger
+        logger.SuccessOperate("New Select In Item In Question",
+                Info.of(selectCreate.questionID,"QuestionID"),
+                Info.of(selectCreate.itemID,"ItemID"));
         return Result.okResult(select.sortIndex);
     }
 
@@ -106,6 +127,11 @@ public class QuestionCreateController {
             @RequestBody ItemSelectUpdate selectUpdate
     ) {
         var select = server.updateSelect(selectUpdate);
+
+        logger.SuccessOperate("Update Select In Item In Question",
+                Info.of(selectUpdate.questionID,"QuestionID"),
+                Info.of(selectUpdate.itemID,"ItemID"),
+                Info.of(selectUpdate.selectID,"SelectID"));
         return Result.okResult(select.sortIndex);
     }
 
@@ -121,7 +147,11 @@ public class QuestionCreateController {
         var SelectSort = server.getItemSelectSortByID(ItemSort, SelectID);
 
         server.removeSelectItem(ItemSort, SelectSort);
-        // TODO: 2021/3/25 logger
+
+        logger.SuccessOperate("Remove Select In Item In Question",
+                Info.of(id,"QuestionID"),
+                Info.of(itemId,"ItemID"),
+                Info.of(SelectID,"SelectID"));
         return Result.okResult(true);
     }
 
@@ -134,7 +164,7 @@ public class QuestionCreateController {
         for (QuestionItem item :
                 question.items) {
             var newItem = server.newQuestionItem(item.name, item.type);
-            var newITemSort = server.addQuestionItem(questionCreate, newItem,item.require);
+            var newITemSort = server.addQuestionItem(questionCreate, newItem, item.require);
 
             for (QuestionItemSelect select :
                     item.selects) {
@@ -142,6 +172,9 @@ public class QuestionCreateController {
             }
         }
         server.publicQuestion(questionCreate.ID);
+
+        logger.SuccessOperate("new Full Question",
+                Info.of(question.name,"QuestionName"));
         return Result.okResult(true);
     }
 
@@ -149,15 +182,19 @@ public class QuestionCreateController {
     public Result<Boolean> publicQuestion(
             @RequestParam("id") Integer id
     ) {
+        logger.dataAccept(Info.of(id,"QuestionID"));
         // TODO: 2021/3/28 visitable problem
         server.publicQuestion(id);
+
+        logger.SuccessOperate("Publish Question",
+                Info.of(id,"QuestionID"));
         return Result.okResult(true);
     }
 
     @ExceptionHandler({BaseException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<?> handleNotSelectTypeItem(BaseException exception) {
-        logger.error(exception);
+    public Result<?> handleNotSelectTypeItem(BaseException exception, HttpServletRequest request) {
+        logger.error(request,exception);
         return exception.toResult();
     }
 }

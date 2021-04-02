@@ -1,6 +1,7 @@
 package com.jacky.register.dataHandle;
 
 
+import com.jacky.register.err.BaseException;
 import com.sun.istack.NotNull;
 import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.security.core.Authentication;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 public class LoggerHandle {
     private Logger logger;
@@ -34,11 +36,16 @@ public class LoggerHandle {
         var s = String.format(format, objects);
         logger.error(s, e);
     }
+    public void error(HttpServletRequest request,Throwable e){
+        var message=String.format("Request URI<URI : `%s` | METHOD : `%s` | IP : `%s`>",
+                request.getRequestURI(),request.getMethod(),request.getRemoteAddr());
+        error(message,e);
+    }
 
     public void error(String message, Throwable e) {
         if (e == null)
             logger.error(message);
-        if (e instanceof ClientAbortException) {
+        if (e instanceof BaseException ||e instanceof ClientAbortException) {
             logger.error(message + "| Exception<" + e.getClass().getName() + ">: " + e.getMessage());
         } else
             logger.error(message, e);
@@ -59,126 +66,12 @@ public class LoggerHandle {
         return builder.toString();
     }
 
-
-    public void fileOperateSuccess(String user, String operate, Info<?>... infoList) {
-        var information = String.format(
-                "`%s Items` Success ! | User<%s> |%s",
-                operate,
-                user, extraInformation(infoList)
-        );
-        logger.info(information);
-    }
-
-
-    public void userOperateSuccess(String user, String messageName, Info<?>... extraInfo) {
-        logger.info(String.format(
-                "`Load User Information` Success | InformationType<%s> | User<%s> |%s",
-                messageName, user, extraInformation(extraInfo)
-        ));
-
-    }
-
-    public void userOperateFailure(String user, String messageName, Throwable throwable, Info<?>... extraInfo) {
-        error(String.format(
-                "`Load User Information` Failure | InformationType<%s> | User<%s> |%s",
-                messageName, user, extraInformation(extraInfo)
-        ), throwable);
-    }
-
-    public void userOperateFailure(String user, String messageName, Info<?>... extraInfo) {
-        error(String.format(
-                "`Load User Information` Failure | InformationType<%s> | User<%s> |%s",
-                messageName, user, extraInformation(extraInfo)
-        ), null);
-    }
-
-    public void storageFileOperateSuccess(String filename, String action, Info<?>... extraInfo) {
-        logger.info(String.format(
-                "`%s Storage File` Success | filename: %s |%s"
-                , action, filename, extraInformation(extraInfo)
-        ));
-    }
-
-    public void storageFileOperateFailure(String filename, String action, Throwable throwable, Info<?>... extraInfo) {
-        error(String.format(
-                "`%s Storage File` Failure | filename: %s |%s"
-                , action, filename, extraInformation(extraInfo)
-        ), throwable);
-    }
-
-    public void storageFileOperateFailure(Throwable throwable, Info<?>... extraInfo) {
-        error(String.format(
-                "`Operation Storage File` Failure |%s"
-                , extraInformation(extraInfo)
-        ), throwable);
-    }
-
-    public void storageFileOperateFailure(Throwable throwable, ServletRequest request, ServletResponse response, Info<?>... extraInfo) {
-
-        error(String.format(
-                "`Operation Storage File` Failure |%s"
-                , extraInformation(extraInfo)
-        ), throwable);
-    }
-
-    public void authenticationSuccess(String username, Info<?>... extraInfo) {
-        logger.info(String.format(
-                "`User Authentication Operation` Success | User<%s> |%s",
-                username, extraInformation(extraInfo)
-        ));
-    }
-
-    public void authenticationFailure(String username, Throwable throwable, Info<?>... extraInfo) {
-        error(String.format(
-                "`User Authentication Operation` Failure | User<%s> |%s",
-                username, extraInformation(extraInfo)
-        ), throwable);
-    }
-
-    public void authenticationFailure(String username, Info<?>... extraInfo) {
-        error(String.format(
-                "`User Authentication Operation` Failure | User<%s> |%s",
-                username, extraInformation(extraInfo)
-        ), null);
-    }
-
-    public void securityOperateSuccess(String operate, Info<?>... extraInfo) {
-        logger.info(String.format(
-                "`%s | Security` Success |%s",
-                operate, extraInformation(extraInfo)
-        ));
-    }
-
-    public void securityOperateFailure(String operate, Throwable throwable, Info<?>... extraInfo) {
-        error(String.format(
-                "`%s | Security` Failure |%s",
-                operate, extraInformation(extraInfo)
-        ), throwable);
-    }
-
-    public void shareOperateSuccess(String operate, String shareCode, Info<?>... extraInfo) {
-        info(
-                "`%s | File Share` Success | ShareCode<%s> |%s",
-                operate, shareCode, extraInformation(extraInfo)
+    public void SuccessOperate(String operate,Info<?>... info ){
+        logger.info(
+                String.format("`%s` Success | %s",operate,extraInformation(info))
         );
     }
 
-
-    public void operateFailure(String description, Info<?>... infoList) {
-        error(String.format("`%s` Failure|%s", description, extraInformation(infoList)), null);
-    }
-
-    public void operateFailure(String description, Exception exception, Info<?>... infoList) {
-        error(String.format("`%s` Failure|%s", description, extraInformation(infoList)), exception);
-    }
-
-    public void operateFailure(String description, Exception exception, Authentication authentication, Info<?>... infoList) {
-        error(String.format("`%s` Failure |User<%s> |%s", description, authentication.getName(), extraInformation(infoList)), exception);
-    }
-
-    public void operateFailure(String description, Authentication authentication, Info<?>... infoList) {
-        error(String.format("`%s` Failure |User<%s> |%s", description, authentication.getName(), extraInformation(infoList)), null);
-    }
 
     public void error(Throwable exception) {
         error(exception.getMessage(), exception);
