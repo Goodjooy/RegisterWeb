@@ -1,23 +1,32 @@
 package com.jacky.register.models.database.quetionail.collection;
 
+import com.jacky.register.models.database.quetionail.Questionable;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Set;
+
 @Entity
+@Table(
+        indexes = {
+                @Index(columnList = "submit_at")
+        }
+)
 public class QuestionCollection {
     @Id
     @GeneratedValue
     Integer id;
 
     @CreatedDate
+    @Column(name = "submit_at")
+    public
     LocalDateTime submitAt;
 
     @OneToMany()
-    Set<CollectionItem>items;
+    public
+    Set<CollectionItem> items;
+
+    @ManyToOne
+    public Questionable question;
 }

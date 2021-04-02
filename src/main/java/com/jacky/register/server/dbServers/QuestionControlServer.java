@@ -1,7 +1,9 @@
 package com.jacky.register.server.dbServers;
 
-import com.jacky.register.err.NotSelectTypeItemException;
-import com.jacky.register.err.RowNotFoundException;
+import com.jacky.register.err.qustion.notFound.ItemNotFoundException;
+import com.jacky.register.err.qustion.notFound.ItemSelectNotFoundException;
+import com.jacky.register.err.qustion.notFound.QuestionNotFoundException;
+import com.jacky.register.err.qustion.typeNotSupport.NotSelectTypeItemException;
 import com.jacky.register.models.database.group.DepartmentRepository;
 import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.quetionail.ItemType;
@@ -15,6 +17,10 @@ import com.jacky.register.models.database.quetionail.subItems.ItemRepository;
 import com.jacky.register.models.database.quetionail.subItems.ItemSort;
 import com.jacky.register.models.database.quetionail.subItems.ItemSortRepository;
 import com.jacky.register.models.database.quetionail.subItems.QuestionSubItem;
+import com.jacky.register.models.request.quesion.itemSelect.ItemSelectCreate;
+import com.jacky.register.models.request.quesion.itemSelect.ItemSelectUpdate;
+import com.jacky.register.models.request.quesion.item.ItemCreate;
+import com.jacky.register.models.request.quesion.item.ItemUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
-public class QuestionServer {
+public class QuestionControlServer {
     @Autowired
     QuestionRepository questionRepository;
     @Autowired
@@ -54,6 +60,7 @@ public class QuestionServer {
 
         question.information = information;
         question.title = title;
+        question.publish = false;
 
         questionRepository.save(question);
         departmentRepository.save(department);
@@ -70,13 +77,16 @@ public class QuestionServer {
         itemRepository.save(item);
         return item;
     }
+    public QuestionSubItem newQuestionItem(ItemCreate create){
+        return newQuestionItem(create.data.itemData,create.data.type);
+    }
 
-    public ItemSort addQuestionItem(Questionable question, QuestionSubItem item) {
+    public ItemSort addQuestionItem(Questionable question, QuestionSubItem item,boolean require) {
         ItemSort sort = new ItemSort();
         sort.sortIndex = question.items.size() + 1;
         sort.item = item;
         sort.question = question;
-
+        sort.requireFill=require;
         question.items.add(sort);
 
 
@@ -86,10 +96,13 @@ public class QuestionServer {
 
         return sort;
     }
-
-    public SelectSort addItemSelect(QuestionSubItem item, String selectName, boolean userInsert) {
-        if (item.type != ItemType.MULTI_CHOICE && item.type != ItemType.SINGLE_CHOICE)
-            throw new NotSelectTypeItemException("问卷子项类型 `" + item.type.name() + "` 不可添加选项");
+    public SelectSort addItemSelect(ItemSelectCreate selectCreate) {
+        var item=getItemSortByID(selectCreate.questionID, selectCreate.itemID);
+        return addItemSelect(item,selectCreate.data.selectInfo,selectCreate.data.userInsert);
+    }
+    public SelectSort addItemSelect(ItemSort item, String selectName, boolean userInsert) {
+        if (item.item.type != ItemType.MULTI_CHOICE && item.item.type != ItemType.SINGLE_CHOICE)
+            throw new NotSelectTypeItemException(item);
 
         SubItemSelect select = new SubItemSelect();
         select.information = selectName;
@@ -100,11 +113,12 @@ public class QuestionServer {
         SelectSort sort = new SelectSort();
 
         sort.select = select;
+        sort.item=item;
         sort.sortIndex = item.selects.size() + 1;
         item.selects.add(sort);
 
         selectSortRepository.save(sort);
-        itemRepository.save(item);
+        itemSortRepository.save(item);
 
         return sort;
     }
@@ -122,18 +136,52 @@ public class QuestionServer {
         questionRepository.save(question);
     }
 
-    public void removeSelectItem(ItemSort item,SelectSort select){
-        item.item.selects.remove(select);
+    public void removeSelectItem(ItemSort item, SelectSort select) {
+        item.selects.remove(select);
 
-        var temp=item.item.selects.stream()
-                .filter(sort -> sort.sortIndex>=select.sortIndex)
-                .peek(sort -> sort.sortIndex-=1)
+        var temp = item.selects.stream()
+                .filter(sort -> sort.sortIndex >= select.sortIndex)
+                .peek(sort -> sort.sortIndex -= 1)
                 .collect(Collectors.toSet());
 
         selectSortRepository.saveAll(temp);
         selectSortRepository.delete(select);
         itemSelectRepository.delete(select.select);
         itemRepository.save(item.item);
+    }
+
+    public ItemSort updateItem(ItemUpdate itemUpdate) {
+        var itemSort=getItemSortByID(itemUpdate.questionID, itemUpdate.itemSortID);
+        var item=itemSort.item;
+        var data=itemUpdate.data;
+
+        // TODO: 2021/3/31 sort Index change
+
+        itemSort.requireFill =data.require;
+        item.type=data.type;
+        item.data=data.itemData;
+
+        itemRepository.save(item);
+        itemSortRepository.save(itemSort);
+        return itemSort;
+    }
+    public SelectSort updateSelect(ItemSelectUpdate selectUpdate){
+        var selectSort=getSelectSortByID(selectUpdate.questionID,
+                selectUpdate.itemID,selectUpdate.selectID);
+        var select=selectSort.select;
+        var data=selectUpdate.data;
+
+        select.userInsert=data.userInsert;
+        select.information= data.selectInfo;
+
+        selectSortRepository.save(selectSort);
+        itemSelectRepository.save(select);
+        return selectSort;
+    }
+    public void publicQuestion(Integer id) {
+        var q = getQuestionByID(id);
+        q.publish = true;
+        questionRepository.save(q);
     }
 
     public List<Questionable> getALL() {
@@ -145,7 +193,7 @@ public class QuestionServer {
         if (result.isPresent()) {
             return result.get();
         } else {
-            throw new RowNotFoundException("id==`" + id + "` not found in table Questionable");
+            throw new QuestionNotFoundException(id);
         }
     }
 
@@ -154,16 +202,31 @@ public class QuestionServer {
         if (result.isPresent()) {
             return result.get();
         } else {
-            throw new RowNotFoundException("id==`" + id + "` not found in table ItemSort");
+            throw new ItemNotFoundException(questionable,id);
         }
     }
 
     public SelectSort getItemSelectSortByID(ItemSort itemSort, Integer id) {
-        var result = itemSort.item.selects.stream().filter(sort -> sort.sortIndex.equals(id)).findFirst();
+        var result = itemSort.selects.stream().filter(sort -> sort.sortIndex.equals(id)).findFirst();
         if (result.isPresent()) {
             return result.get();
         } else {
-            throw new RowNotFoundException("id==`" + id + "` not found in table ItemSort");
+            throw new ItemSelectNotFoundException(itemSort,id);
         }
+    }
+
+    public SelectSort getSelectSortByID(int questionID, int itemID, int selectID) {
+        var result = selectSortRepository.findByItemQuestionIDAndItemSortIndexAndSortIndex(questionID, itemID, selectID);
+        if (result.isPresent()) {
+            return result.get();
+        }
+        throw new ItemSelectNotFoundException(questionID,itemID,selectID);
+    }
+    public ItemSort getItemSortByID(int questionID, int itemID) {
+        var result = itemSortRepository.findIByQuestionIDAndSortIndex(questionID, itemID);
+        if (result.isPresent()) {
+            return result.get();
+        }
+        throw new ItemNotFoundException(questionID,itemID);
     }
 }

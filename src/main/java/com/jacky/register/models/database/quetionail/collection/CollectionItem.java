@@ -1,7 +1,6 @@
 package com.jacky.register.models.database.quetionail.collection;
 
 import com.jacky.register.models.database.quetionail.subItems.ItemSort;
-import com.jacky.register.models.respond.QuestionItem;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -12,12 +11,12 @@ public class CollectionItem {
     Integer id;
 
     @Column(length = 128,nullable = false)
-    String data;
+    public String data;
 
     @ManyToOne
     @JoinColumn
-    ItemSort item;
+    public ItemSort item;
 
     @OneToMany
-    Set<CollectionItemSelect>selects;
+    public Set<CollectionItemSelect>selects;
 }

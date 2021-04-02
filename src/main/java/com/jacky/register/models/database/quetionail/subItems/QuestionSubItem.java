@@ -23,10 +23,4 @@ public class QuestionSubItem {
     //type
     public
     ItemType type;
-
-    //selects
-    @OneToMany(fetch = FetchType.LAZY)
-    public
-    Set<SelectSort> selects;
-
 }

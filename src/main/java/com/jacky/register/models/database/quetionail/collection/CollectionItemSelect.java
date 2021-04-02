@@ -13,8 +13,11 @@ public class CollectionItemSelect {
 
     @ManyToOne
     @JoinColumn
+            public
     SelectSort select;
 
     @Column(length = 32)
+    public
+
     String value;
 }
