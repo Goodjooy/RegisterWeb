@@ -73,7 +73,8 @@ public class QuestionCreateController {
                 .addQuestionItem(
                         server.getQuestionByID(itemCreate.questionID),
                         item,
-                        itemCreate.data.require);
+                        itemCreate.data.require,
+                        itemCreate.data.unique);
 
         logger.SuccessOperate("Add Item To Question",
                 Info.of(itemCreate.questionID, "QuestionID"),
@@ -104,8 +105,8 @@ public class QuestionCreateController {
         server.removeItem(question, server.getItemSortByID(question, itemId));
 
         logger.SuccessOperate("Remove Item In Question",
-                Info.of(id,"QuestionID"),
-                Info.of(itemId,"ItemID"));
+                Info.of(id, "QuestionID"),
+                Info.of(itemId, "ItemID"));
         return Result.okResult(true);
     }
 
@@ -117,8 +118,8 @@ public class QuestionCreateController {
         var select = server.addItemSelect(selectCreate);
 
         logger.SuccessOperate("New Select In Item In Question",
-                Info.of(selectCreate.questionID,"QuestionID"),
-                Info.of(selectCreate.itemID,"ItemID"));
+                Info.of(selectCreate.questionID, "QuestionID"),
+                Info.of(selectCreate.itemID, "ItemID"));
         return Result.okResult(select.sortIndex);
     }
 
@@ -129,9 +130,9 @@ public class QuestionCreateController {
         var select = server.updateSelect(selectUpdate);
 
         logger.SuccessOperate("Update Select In Item In Question",
-                Info.of(selectUpdate.questionID,"QuestionID"),
-                Info.of(selectUpdate.itemID,"ItemID"),
-                Info.of(selectUpdate.selectID,"SelectID"));
+                Info.of(selectUpdate.questionID, "QuestionID"),
+                Info.of(selectUpdate.itemID, "ItemID"),
+                Info.of(selectUpdate.selectID, "SelectID"));
         return Result.okResult(select.sortIndex);
     }
 
@@ -149,9 +150,9 @@ public class QuestionCreateController {
         server.removeSelectItem(ItemSort, SelectSort);
 
         logger.SuccessOperate("Remove Select In Item In Question",
-                Info.of(id,"QuestionID"),
-                Info.of(itemId,"ItemID"),
-                Info.of(SelectID,"SelectID"));
+                Info.of(id, "QuestionID"),
+                Info.of(itemId, "ItemID"),
+                Info.of(SelectID, "SelectID"));
         return Result.okResult(true);
     }
 
@@ -164,7 +165,7 @@ public class QuestionCreateController {
         for (QuestionItem item :
                 question.items) {
             var newItem = server.newQuestionItem(item.name, item.type);
-            var newITemSort = server.addQuestionItem(questionCreate, newItem, item.require);
+            var newITemSort = server.addQuestionItem(questionCreate, newItem, item.require, item.unique);
 
             for (QuestionItemSelect select :
                     item.selects) {
@@ -174,7 +175,7 @@ public class QuestionCreateController {
         server.publicQuestion(questionCreate.ID);
 
         logger.SuccessOperate("new Full Question",
-                Info.of(question.name,"QuestionName"));
+                Info.of(question.name, "QuestionName"));
         return Result.okResult(true);
     }
 
@@ -182,19 +183,19 @@ public class QuestionCreateController {
     public Result<Boolean> publicQuestion(
             @RequestParam("id") Integer id
     ) {
-        logger.dataAccept(Info.of(id,"QuestionID"));
+        logger.dataAccept(Info.of(id, "QuestionID"));
         // TODO: 2021/3/28 visitable problem
         server.publicQuestion(id);
 
         logger.SuccessOperate("Publish Question",
-                Info.of(id,"QuestionID"));
+                Info.of(id, "QuestionID"));
         return Result.okResult(true);
     }
 
     @ExceptionHandler({BaseException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Result<?> handleNotSelectTypeItem(BaseException exception, HttpServletRequest request) {
-        logger.error(request,exception);
+        logger.error(request, exception);
         return exception.toResult();
     }
 }

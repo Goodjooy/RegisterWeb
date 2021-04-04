@@ -35,8 +35,15 @@ public class QuestionCollectionData {
                     d.ItemID = collectionItem.item.sortIndex;
                     d.ItemInfo = collectionItem.item.item.data;
                     d.ItemSelect = collectionItem.selects.stream()
-                            .map(collectionItemSelect -> collectionItemSelect.select.sortIndex)
-                            .sorted()
+                            .map(collectionItemSelect -> {
+                                        SelectData data1=new SelectData();
+                                        data1.SelectItem=
+                                        collectionItemSelect.select.sortIndex;
+                                        data1.selectData=collectionItemSelect.value;
+                                        return data1;
+                                    }
+                            )
+                            .sorted(Comparator.comparing(selectData -> selectData.SelectItem))
                             .collect(Collectors.toList());
                     return d;
                 }).collect(Collectors.toList());
@@ -90,7 +97,7 @@ public class QuestionCollectionData {
 
                                         var v = item.item.selects.stream()
                                                 .sorted(Comparator.comparing(sort -> sort.sortIndex))
-                                                .collect(Collectors.toList()).get(integer - 1);
+                                                .collect(Collectors.toList()).get(integer.SelectItem - 1);
 
                                         CollectionItemSelect select = new CollectionItemSelect();
                                         select.select = v;
@@ -115,9 +122,13 @@ public class QuestionCollectionData {
         return collection;
     }
 
-    static class Data {
+    public static class Data {
         public String ItemInfo;
         public Integer ItemID;
-        public List<Integer> ItemSelect;
+        public List<SelectData> ItemSelect;
+    }
+    public static class SelectData{
+        public int SelectItem;
+        public String selectData;
     }
 }

@@ -3,8 +3,8 @@ package com.jacky.register.server.dbServers;
 import com.jacky.register.models.database.quetionail.QuestionRepository;
 import com.jacky.register.models.database.quetionail.collection.CollectionItemRepository;
 import com.jacky.register.models.database.quetionail.collection.CollectionItemSelectRepository;
+import com.jacky.register.models.database.quetionail.collection.QuestionCollection;
 import com.jacky.register.models.database.quetionail.collection.QuestionCollectionRepository;
-import com.jacky.register.models.respond.question.collection.QuestionCollection;
 import com.jacky.register.models.respond.question.collection.QuestionCollectionData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,8 +22,7 @@ public class QuestionCollectionServer {
     @Autowired
     CollectionItemSelectRepository selectRepository;
 
-    public void sendQuestionCollect(QuestionCollectionData collection){
-        var questionCollection=collection.toQuestionCollection(questionRepository);
+    public void sendQuestionCollect(QuestionCollection questionCollection){
 
         var result=questionCollection.items.stream()
                 .peek(collectionItem -> {

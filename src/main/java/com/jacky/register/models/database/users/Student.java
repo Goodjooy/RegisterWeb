@@ -1,5 +1,6 @@
 package com.jacky.register.models.database.users;
 
+import com.jacky.register.models.database.Term.Term;
 import com.jacky.register.models.database.group.GroupDepartment;
 
 import javax.persistence.*;
@@ -16,6 +17,7 @@ public class Student {
     @Column(nullable = false, length = 10)
     String stdID;
 
+    @Column(nullable = false)
     String email;
     @Column(length = 20)
     String phone;
@@ -30,6 +32,8 @@ public class Student {
             joinColumns = @JoinColumn(name = "std_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id"))
     Set<GroupDepartment> underGroup;
-    //todo term data
-    //Set<Term> underTerm;
+
+    @Transient
+            //学生所在考核轮/不同部门/不同轮
+    Set<Term>studentTerm;
 }

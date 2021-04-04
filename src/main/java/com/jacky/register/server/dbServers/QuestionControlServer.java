@@ -81,12 +81,13 @@ public class QuestionControlServer {
         return newQuestionItem(create.data.itemData,create.data.type);
     }
 
-    public ItemSort addQuestionItem(Questionable question, QuestionSubItem item,boolean require) {
+    public ItemSort addQuestionItem(Questionable question, QuestionSubItem item,boolean require,boolean unique) {
         ItemSort sort = new ItemSort();
         sort.sortIndex = question.items.size() + 1;
         sort.item = item;
         sort.question = question;
         sort.requireFill=require;
+        sort.uniqueItem =unique;
         question.items.add(sort);
 
 

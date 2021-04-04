@@ -7,6 +7,7 @@ import com.jacky.register.models.respond.question.collection.QuestionCollectionD
 import com.jacky.register.models.respond.question.control.Question;
 import com.jacky.register.server.dbServers.QuestionCollectionServer;
 import com.jacky.register.server.dbServers.QuestionControlServer;
+import com.jacky.register.server.modelTransformServers.QuestionCollectionTransformServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -24,16 +25,15 @@ public class QuestionCollectionController {
     QuestionCollectionServer collectionServer;
     @Autowired
     QuestionControlServer controlServer;
+    @Autowired
+    QuestionCollectionTransformServer collectionTransformServer;
 
     @PostMapping("/{id:\\d+}")
     public Result<Boolean> uploadCollection(
             @RequestBody QuestionCollectionData data,
             @PathVariable Integer id){
-        // TODO: 2021/3/28 collection data
-        data.QuestionID=id;
-        data.time= LocalDateTime.now();
-
-        collectionServer.sendQuestionCollect(data);
+        var collection=collectionTransformServer.toQuestionCollection(data,id);
+        collectionServer.sendQuestionCollect(collection);
         return Result.okResult(true);
     }
 

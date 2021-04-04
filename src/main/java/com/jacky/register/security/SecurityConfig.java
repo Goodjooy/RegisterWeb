@@ -28,18 +28,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors()
-                .and().csrf().csrfTokenRepository(new CookieCsrfTokenRepository()).disable();
+        http
+                .cors()
+                .and()
+                .csrf()
+                .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .ignoringAntMatchers("/api/csrf/token")
+                .disable();
 
-        http.authorizeRequests().anyRequest().permitAll();
+        http
+                .authorizeRequests()
+                .anyRequest()
+                .permitAll();
 
         http
                 .formLogin()
                 .loginProcessingUrl("/api/auth/login")
                 .usernameParameter("uid")
                 .passwordParameter("paswd");
-
-
     }
 
     @Override
