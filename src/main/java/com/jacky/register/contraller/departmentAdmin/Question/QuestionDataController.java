@@ -2,15 +2,12 @@ package com.jacky.register.contraller.departmentAdmin.Question;
 
 import com.jacky.register.dataHandle.Result;
 import com.jacky.register.models.respond.question.collection.QuestionCollection;
-import com.jacky.register.models.respond.question.collection.QuestionCollectionData;
-import com.jacky.register.server.dbServers.QuestionDataServer;
+import com.jacky.register.server.dbServers.qustion.QuestionDataServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/question/data")

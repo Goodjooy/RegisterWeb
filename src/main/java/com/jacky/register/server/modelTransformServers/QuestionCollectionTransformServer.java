@@ -12,7 +12,7 @@ import com.jacky.register.models.database.quetionail.collection.CollectionItemSe
 import com.jacky.register.models.database.quetionail.collection.QuestionCollection;
 import com.jacky.register.models.database.quetionail.subItems.ItemSort;
 import com.jacky.register.models.respond.question.collection.QuestionCollectionData;
-import com.jacky.register.server.dbServers.QuestionControlServer;
+import com.jacky.register.server.dbServers.qustion.QuestionControlServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

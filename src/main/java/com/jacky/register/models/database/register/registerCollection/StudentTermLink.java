@@ -7,6 +7,8 @@ import javax.persistence.Id;
 
 @Entity
 //学生和考核轮链接
+//每个考核轮发布后，通过上一轮考核即可
+//学生信息不变，软链接即可
 public class StudentTermLink {
     public enum ExamStatus{
         REGISTER,

@@ -1,18 +1,13 @@
 package com.jacky.register.contraller.departmentAdmin.Question;
 
 import com.jacky.register.dataHandle.Result;
-import com.jacky.register.models.database.quetionail.QuestionRepository;
-import com.jacky.register.models.database.quetionail.collection.QuestionCollectionRepository;
 import com.jacky.register.models.respond.question.collection.QuestionCollectionData;
 import com.jacky.register.models.respond.question.control.Question;
-import com.jacky.register.server.dbServers.QuestionCollectionServer;
-import com.jacky.register.server.dbServers.QuestionControlServer;
+import com.jacky.register.server.dbServers.qustion.QuestionCollectionServer;
+import com.jacky.register.server.dbServers.qustion.QuestionControlServer;
 import com.jacky.register.server.modelTransformServers.QuestionCollectionTransformServer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 /**
  * 面向用户的收集页面

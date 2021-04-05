@@ -12,7 +12,7 @@ import com.jacky.register.models.respond.question.control.Question;
 import com.jacky.register.models.respond.question.control.QuestionItem;
 import com.jacky.register.models.respond.question.control.QuestionItemSelect;
 import com.jacky.register.server.dbServers.DepartmentServer;
-import com.jacky.register.server.dbServers.QuestionControlServer;
+import com.jacky.register.server.dbServers.qustion.QuestionControlServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

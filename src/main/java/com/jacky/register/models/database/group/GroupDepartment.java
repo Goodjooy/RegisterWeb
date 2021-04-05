@@ -2,7 +2,7 @@ package com.jacky.register.models.database.group;
 
 import com.jacky.register.models.database.quetionail.Questionable;
 import com.jacky.register.models.database.users.Administer;
-import com.jacky.register.models.database.users.Student;
+import com.jacky.register.models.database.register.Student;
 
 import javax.persistence.*;
 import java.util.Set;

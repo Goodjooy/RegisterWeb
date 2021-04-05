@@ -1,4 +1,4 @@
-package com.jacky.register.server.dbServers;
+package com.jacky.register.server.dbServers.qustion;
 
 import com.jacky.register.models.database.quetionail.QuestionRepository;
 import com.jacky.register.models.database.quetionail.collection.CollectionItemRepository;

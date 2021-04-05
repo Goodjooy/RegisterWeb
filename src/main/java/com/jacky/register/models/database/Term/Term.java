@@ -1,8 +1,7 @@
 package com.jacky.register.models.database.Term;
 
 import com.jacky.register.models.database.register.RegisterQuestion;
-import com.jacky.register.models.database.users.Student;
-import org.hibernate.annotations.GeneratorType;
+import com.jacky.register.models.database.register.Student;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -30,4 +29,6 @@ public class Term {
 
     @Column(nullable = false)
     LocalDateTime endAt;
+
+
 }

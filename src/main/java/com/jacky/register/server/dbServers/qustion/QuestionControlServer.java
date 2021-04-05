@@ -1,4 +1,4 @@
-package com.jacky.register.server.dbServers;
+package com.jacky.register.server.dbServers.qustion;
 
 import com.jacky.register.err.qustion.notFound.ItemNotFoundException;
 import com.jacky.register.err.qustion.notFound.ItemSelectNotFoundException;
