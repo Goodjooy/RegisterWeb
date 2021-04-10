@@ -1,6 +1,6 @@
 package com.jacky.register.models.database.register;
 
-import com.jacky.register.models.database.Term.Term;
+import com.jacky.register.models.database.Term.Exam;
 import com.jacky.register.models.database.group.GroupDepartment;
 
 import javax.persistence.*;
@@ -37,5 +37,5 @@ public class Student {
 
     @Transient
     //学生所在考核轮/不同部门/不同轮
-    Set<Term> studentTerm;
+    Set<Exam> studentExam;
 }

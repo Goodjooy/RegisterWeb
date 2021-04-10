@@ -1,15 +1,15 @@
 package com.jacky.register.models.database.register.registerCollection;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import com.jacky.register.models.database.Term.Exam;
+import com.jacky.register.models.database.register.Student;
+
+import javax.persistence.*;
 
 @Entity
 //学生和考核轮链接
 //每个考核轮发布后，通过上一轮考核即可
 //学生信息不变，软链接即可
-public class StudentTermLink {
+public class StudentExamLink {
     public enum ExamStatus{
         REGISTER,
         ASSESS,
@@ -24,10 +24,14 @@ public class StudentTermLink {
     //学生的id
     @Column(nullable = false)
     Integer studentID;
+    @Transient
+    Student student;
+
     //考核轮ID
     @Column(nullable = false)
     Integer termID;
-
+    @Transient
+    Exam exam;
     //考核状态
     @Column(nullable = false)
     ExamStatus status;

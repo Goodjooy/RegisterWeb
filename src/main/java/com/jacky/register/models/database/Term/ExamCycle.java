@@ -19,21 +19,34 @@ import java.util.Set;
 @Entity
 //总考核系统
 // 管理员新建考核
-public class TermParent {
+public class ExamCycle {
     @Id
     @GeneratedValue
+            public
     Long id;
 
     //考核发起部门
     @Column(nullable = false)
-    Long departmentID;
+            public
+    Integer departmentID;
+    //考核名称
+    @Column(length = 64)
+            public
+    String name;
+
+    @Column(nullable = false)
+            public
+    Long registerQuestionID;
+
 
     //全部考核轮
     @Transient
-    List<Term>termList;
+            public
+    List<Exam> examList;
 
     //全部考核学生
     @Transient
+            public
     Set<Student>studentSet;
 
 }

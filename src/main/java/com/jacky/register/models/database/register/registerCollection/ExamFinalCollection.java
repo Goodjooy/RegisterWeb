@@ -1,13 +1,13 @@
 package com.jacky.register.models.database.register.registerCollection;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import com.jacky.register.models.database.Term.Exam;
+import com.jacky.register.models.database.register.Student;
+
+import javax.persistence.*;
 
 //考核终了收集表
 @Entity
-public class RegisterFinalCollection {
+public class ExamFinalCollection {
     @Id
     @GeneratedValue
     Long id;
@@ -15,10 +15,14 @@ public class RegisterFinalCollection {
     //学生id；
     @Column(nullable = false,unique = true,length = 20)
     String studentID;
+    @Transient
+    Student student;
 
     //考核轮ID
     @Column(nullable = false)
     Long termID;
+    @Transient
+    Exam exam;
 
     //考核提交文件路径
     @Column(nullable = false,length = 128)

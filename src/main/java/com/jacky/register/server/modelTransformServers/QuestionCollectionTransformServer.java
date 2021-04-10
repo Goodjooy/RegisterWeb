@@ -73,7 +73,7 @@ public class QuestionCollectionTransformServer {
                 CollectionItem collectionItem = new CollectionItem();
 
                 collectionItem.item = item;
-                // TODO: 2021/4/4 select add
+
                 collectionItem.selects = toItemSelects(data.ItemSelect, item);
 
                 //必填内容却为null 或者空字符串
