@@ -25,6 +25,8 @@ public class RegisterQuestion {
     public Integer studentNameItemID;
     @Column(nullable = false)
     public Integer emailItemID;
-    @Column(nullable = false)
+    @Column(nullable = true)
     public Integer qqItemID;
+    @Column(nullable = true)
+    public Integer phoneItemID;
 }

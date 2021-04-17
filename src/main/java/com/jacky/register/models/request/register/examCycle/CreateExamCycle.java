@@ -9,7 +9,5 @@ import java.io.Serializable;
  * 本次考核周期报名表
  */
 public class CreateExamCycle implements Serializable {
-    public String name;
-    // 考核周期问卷连接器
-    public QuestionLinker linker;
+    public ExamCycleData data;
 }

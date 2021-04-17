@@ -21,6 +21,10 @@ public class Exam {
     public
     Long examCycleID;
 
+    @Column(nullable = false,length = 32)
+    public
+    String name;
+
 
     //本轮学生
     @Transient

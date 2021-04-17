@@ -5,11 +5,12 @@ import java.io.Serializable;
 
 public class QuestionLinker implements Serializable {
     //绑定的问题id
-    public Integer questionId;
+    public Integer questionID;
 
     //问卷信息绑定
-    public Integer studentItemID;
+    public Integer studentIDItemID;
     public Integer studentNameItemID;
     public Integer emailItemID;
     public Integer qqItemID;
+    public Integer phoneItemID;
 }

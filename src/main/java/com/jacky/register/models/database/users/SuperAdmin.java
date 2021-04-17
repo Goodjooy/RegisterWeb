@@ -11,7 +11,7 @@ public class SuperAdmin {
             @GeneratedValue
     Integer id;
 
-    @Column(nullable = false,length = 128)
+    @Column(nullable = false,length = 128,unique = true)
     public
     String email;
 

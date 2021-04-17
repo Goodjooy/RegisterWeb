@@ -12,15 +12,20 @@ import javax.persistence.*;
 public class StudentExamCycleLink {
     @Id
     @GeneratedValue
+            public
     Long id;
 
     @Column(nullable = false)
-    Long studentID;
+            public
+    Integer studentID;
     @Transient
+            public
     Student student;
 
     @Column(nullable = false)
-    Long examCycleID;
+            public
+    Long examCycleId;
     @Transient
+            public
     ExamCycle examCycle;
 }

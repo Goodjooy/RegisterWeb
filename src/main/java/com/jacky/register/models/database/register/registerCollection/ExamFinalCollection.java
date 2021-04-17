@@ -20,7 +20,7 @@ public class ExamFinalCollection {
 
     //考核轮ID
     @Column(nullable = false)
-    Long termID;
+    Long examID;
     @Transient
     Exam exam;
 

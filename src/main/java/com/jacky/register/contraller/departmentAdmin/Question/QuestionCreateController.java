@@ -52,7 +52,9 @@ public class QuestionCreateController {
             @RequestParam(value = "information", defaultValue = "这是一个新的问卷") String information
     ) {
         // TODO: 2021/3/25 save to department base on the auth admin
+        //通过authentication 来获取 部门
         var department = departmentServer.getFirstDepartment();
+
         var question = server.newQuestion(department, QuestionName, information);
 
         logger.SuccessOperate("New Question",
