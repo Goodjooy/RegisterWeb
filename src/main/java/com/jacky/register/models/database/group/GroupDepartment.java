@@ -33,5 +33,13 @@ public class GroupDepartment {
     public
     Set<Questionable>questions;
 
+    public static GroupDepartment lambadaDepartment(){
+        GroupDepartment department=new GroupDepartment();
+        department.ID=-1;
+        department.name="nil";
+        department.information="nil";
+
+        return department;
+    }
 
 }

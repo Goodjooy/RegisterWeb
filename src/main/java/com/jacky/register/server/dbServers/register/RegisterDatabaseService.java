@@ -1,24 +1,24 @@
 package com.jacky.register.server.dbServers.register;
 
 import com.jacky.register.err.register.notFound.ExamCycleNotFoundException;
+import com.jacky.register.err.register.notFound.RegisterQuestionNotFoundException;
+import com.jacky.register.err.register.notFound.StudentNotFoundException;
+import com.jacky.register.err.register.requireNotSatisfy.StudentNotPassAllPreExamException;
+import com.jacky.register.models.ExamStatus;
 import com.jacky.register.models.database.Term.Exam;
 import com.jacky.register.models.database.Term.ExamCycle;
 import com.jacky.register.models.database.Term.repository.ExamCycleRepository;
 import com.jacky.register.models.database.Term.repository.ExamRepository;
 import com.jacky.register.models.database.group.GroupDepartment;
+import com.jacky.register.models.database.register.RegisterQuestion;
 import com.jacky.register.models.database.register.Student;
+import com.jacky.register.models.database.register.registerCollection.StudentExamCycleLink;
 import com.jacky.register.models.database.register.registerCollection.StudentExamLink;
-import com.jacky.register.models.database.register.repository.ExamFinalCollectionRepository;
-import com.jacky.register.models.database.register.repository.StudentExamCycleLinkRepository;
-import com.jacky.register.models.database.register.repository.StudentExamLinkRepository;
-import com.jacky.register.models.database.register.repository.StudentRepository;
+import com.jacky.register.models.database.register.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,13 +37,15 @@ public class RegisterDatabaseService {
 
 
     @Autowired
+    RegisterQuestionRepository registerQuestionRepository;
+    @Autowired
     StudentRepository studentRepository;
 
     public ExamCycle findExamCycleByIdAndDepartment(Long id, GroupDepartment department) {
         var examCycle = getExamCycle(id, department);
         // TODO: 2021/4/17 extra data;
         examCycle.examList = findExamByExamCycleId(id);
-        examCycle.studentSet=findStudentInExamCycle(id);
+        examCycle.studentSet = findStudentInExamCycle(id);
         return examCycle;
     }
 
@@ -53,31 +55,91 @@ public class RegisterDatabaseService {
         exams = exams.stream().peek(exam -> {
             var examStudents = examLinkRepository.findByExamId(exam.id);
             exam.termStudents = findStudentById(examStudents.stream().map(s -> s.studentID)
-                            .collect(Collectors.toList()));
+                    .collect(Collectors.toList()));
         }).collect(Collectors.toList());
         return exams;
     }
-    public Set<StudentExamLink>findExamLinkByStudentId(int id){
+
+    public Set<StudentExamLink> findExamLinkByStudentId(int id) {
         return examLinkRepository.findByStudentID(id);
+    }
+
+    public RegisterQuestion findRegisterQuestionById(long id) {
+        var result = registerQuestionRepository.findById(id);
+        if (result.isEmpty())
+            throw new RegisterQuestionNotFoundException(id);
+
+        return result.get();
     }
 
     public Set<Student> findStudentInExamCycle(long id) {
         var examCycleLinks = examCycleLinkRepository.findByExamCycleId(id);
-        var students = findStudentById(
+        return findStudentById(
                 examCycleLinks.stream().map(s -> s.studentID).collect(Collectors.toList())
         );
-        return students;
     }
 
-    Set<Student> findStudentById(List<Integer>ids){
+    public Student newStudent(Student student, Long examCycleId) {
+        //check student exist;
+        var result = studentRepository.findByNameAndStuIdAndEmail(student.name, student.stdID, student.email);
+        if (result.isEmpty())
+            student = studentRepository.save(student);
+        else {
+            student = result.get();
+        }
+        //examCycle - student Linker
+        StudentExamCycleLink examCycleLink = new StudentExamCycleLink();
+
+        examCycleLink.studentID = student.id;
+        examCycleLink.examCycleId = examCycleId;
+
+        examCycleLinkRepository.save(examCycleLink);
+
+        return student;
+    }
+
+    public void studentConfirm(Integer stuId, Long examId) {
+        var exam = getExam(examId, GroupDepartment.lambadaDepartment());
+        var examCycle=findExamCycleByIdAndDepartment(exam.examCycleID,GroupDepartment.lambadaDepartment());
+        var students =
+                findStudentInExamCycle(exam.examCycleID).stream().map(student -> student.id)
+                        .collect(Collectors.toSet());
+        if (!students.contains(stuId))
+            throw new StudentNotFoundException(stuId);
+
+        //生成student 和exam link
+        StudentExamLink examLink = new StudentExamLink();
+
+        //判断之前考核是否通过
+        var previewExams=examCycle.examList.stream().filter(exam1 -> exam1.id<exam.id)
+                .map(exam1 -> exam1.id)
+                .sorted(Comparator.comparing(Long::longValue))
+                .collect(Collectors.toList());
+        //之前的考核连接
+        var examLinks=getAllExamLink(previewExams);
+        //之前考核未通过
+        if(examLinks.stream().filter(examLink1 -> examLink1.status==ExamStatus.PASS).count()!=examLinks.size())
+            throw new StudentNotPassAllPreExamException(stuId);
+
+        if (examLinkRepository.countByStudentIDAndExamId(stuId, examId) == 0) {
+            examLink.studentID = stuId;
+            examLink.examId = exam.id;
+            examLink.status = ExamStatus.REGISTER;
+
+            examLinkRepository.save(examLink);
+        }
+    }
+
+
+    Set<Student> findStudentById(List<Integer> ids) {
         Set<Student> students = new HashSet<>(studentRepository.findAllById(
                 ids
         ));
         students = students.stream().peek(student -> {
-            var examLinks=examLinkRepository.findByStudentID(student.id);
-            var exams=examRepository.findAllById(examLinks.stream().map(s->s.examId).collect(Collectors.toSet()));
+            var examLinks = examLinkRepository.findByStudentID(student.id);
+            var exams = examRepository.findAllById(examLinks.stream().map(s -> s.examId).collect(Collectors.toSet()));
 
-            student.studentExam= new HashSet<>(exams);
+            student.studentExam = new HashSet<>(exams);
         })
                 .collect(Collectors.toSet());
         return students;
@@ -104,5 +166,9 @@ public class RegisterDatabaseService {
         if (result.isEmpty())
             throw new ExamCycleNotFoundException(id, department);
         return result.get();
+    }
+
+    List<StudentExamLink>getAllExamLink(Collection<Long>ids){
+        return examLinkRepository.findAllById(ids);
     }
 }

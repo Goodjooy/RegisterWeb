@@ -11,4 +11,6 @@ public interface StudentExamLinkRepository extends JpaRepository<StudentExamLink
     List<StudentExamLink> findByExamId(Long id);
    // List<StudentExamLink> findAllByExamId(Iterable<Long> ids);
     Set<StudentExamLink> findByStudentID(Integer id);
+
+    long countByStudentIDAndExamId(Integer stuId,Long examId);
 }

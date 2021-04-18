@@ -14,6 +14,7 @@ import com.jacky.register.server.dbServers.register.RegisterDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.PushBuilder;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,6 +82,8 @@ public class RegisterRespondTransformService {
         studentStatusRespond.status=examLink.status;
         return studentStatusRespond;
     }
+
+
 
     public RegisterRespond getRegister(Long registerId){
         var result=registerQuestionRepository.findById(registerId);
