@@ -12,6 +12,6 @@ import java.util.Set;
 
 public interface StudentRepository extends JpaRepository<Student,Integer> {
 
-    Optional<Student> findByNameAndStuIdAndEmail(String name, String stuId, String email);
+    Optional<Student> findByNameAndStuIDAndEmail(String name, String stuId, String email);
 
 }

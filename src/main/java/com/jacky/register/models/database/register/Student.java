@@ -20,7 +20,7 @@ public class Student {
     String name;
     @Column(nullable = false, unique = true, length = 10)
             public
-    String stdID;
+    String stuID;
 
     @Column(nullable = false, unique = true)
             public

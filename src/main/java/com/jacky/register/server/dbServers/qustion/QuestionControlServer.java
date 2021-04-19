@@ -185,6 +185,10 @@ public class QuestionControlServer {
         questionRepository.save(q);
     }
 
+    boolean isPublic(Questionable questionable){
+        return questionable.publish;
+    }
+
     public List<Questionable> getALL() {
         return questionRepository.findAll();
     }

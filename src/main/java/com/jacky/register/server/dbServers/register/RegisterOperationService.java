@@ -11,6 +11,7 @@ import com.jacky.register.models.database.register.repository.RegisterQuestionRe
 import com.jacky.register.models.request.register.examCycle.ExamCycleData;
 import com.jacky.register.models.request.register.examCycle.ExamData;
 import com.jacky.register.models.request.register.examCycle.QuestionLinker;
+import com.jacky.register.server.localFiles.ExamRequireFileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +30,9 @@ public class RegisterOperationService {
     ExamCycleRepository examCycleRepository;
     @Autowired
     ExamRepository examRepository;
+
+    @Autowired
+    ExamRequireFileStorageService examRequireFileStorageService;
 
     //新建考核周期
     public ExamCycle newTermCycle(GroupDepartment department, ExamCycleData examCycle) {
@@ -104,12 +108,15 @@ public class RegisterOperationService {
     }
 
 
-    public Exam fileUpload(MultipartFile file, Exam exam, GroupDepartment department) {
-        // TODO: 2021/4/10 file Upload Service
-        return null;
+    public Exam fileUpload(MultipartFile file, Exam exam) {
+        var examDate=examRequireFileStorageService.storage(file);
+        exam.requireFile=examDate.requireFile;
+
+        //save exam;
+        examRepository.save(exam);
+        return exam;
     }
 
-    // TODO: 2021/4/10 exam cycle update/delete
 
     RegisterQuestion getRegisterRelation(QuestionLinker linker) {
         RegisterQuestion question = new RegisterQuestion();

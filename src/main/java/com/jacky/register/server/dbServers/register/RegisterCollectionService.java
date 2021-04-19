@@ -7,10 +7,14 @@ import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.quetionail.QuestionRepository;
 import com.jacky.register.models.database.quetionail.collection.CollectionItem;
 import com.jacky.register.models.database.register.Student;
+import com.jacky.register.models.database.register.registerCollection.ExamFinalCollection;
+import com.jacky.register.models.database.register.repository.ExamFinalCollectionRepository;
 import com.jacky.register.models.respond.question.collection.QuestionCollectionData;
+import com.jacky.register.server.localFiles.ExamWorksFileStorageService;
 import com.jacky.register.server.modelTransformServers.RegisterRespondTransformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -28,6 +32,12 @@ public class RegisterCollectionService {
     QuestionRepository questionRepository;
     @Autowired
     RegisterRespondTransformService registerRespondTransformService;
+
+    @Autowired
+    ExamFinalCollectionRepository finalCollectionRepository;
+
+    @Autowired
+    ExamWorksFileStorageService examWorksFileStorageService;
 
     public Student registerStudent(QuestionCollectionData collection, Long examCycleId) {
         var collect = collection.toQuestionCollection(questionRepository);
@@ -47,7 +57,7 @@ public class RegisterCollectionService {
         if (dataHashMap.containsKey(linker.studentNameItemID))
             student.name = dataHashMap.get(linker.studentNameItemID).data;
         if (dataHashMap.containsKey(linker.studentItemID))
-            student.stdID = dataHashMap.get(linker.studentItemID).data;
+            student.stuID = dataHashMap.get(linker.studentItemID).data;
         if (dataHashMap.containsKey(linker.emailItemID))
             student.email = dataHashMap.get(linker.emailItemID).data;
         if (dataHashMap.containsKey(linker.qqItemID))
@@ -98,4 +108,39 @@ public class RegisterCollectionService {
         public Long examId;
     }
 
+    public ExamFinalCollection ExamWorkUpload(MultipartFile file, Long examId, String stuId, String stuName, String stuEmail) {
+        var student = registerDatabaseService.findStudentByStuIdAndStuName(stuId, stuName, stuEmail);
+        var exam = registerDatabaseService.getExam(examId, GroupDepartment.lambadaDepartment());
+
+        //检查学生是否能够参与本轮考核（有报名+通过前面全部考核）
+        registerDatabaseService.checkStudentSupport(
+                exam,
+                registerDatabaseService.findExamCycleByIdAndDepartment(
+                        exam.examCycleID,
+                        GroupDepartment.lambadaDepartment()),
+                student.id);
+
+
+        //文件上传
+        var work = examWorksFileStorageService.storage(file);
+
+        //check exist
+        var result=finalCollectionRepository.findByStudentIDAndExamID(student.id, exam.id);
+        if (result.isPresent()){
+            var temp=result.get();
+            //remove old file
+            examWorksFileStorageService.delete(temp);
+
+            temp.examFile= work.examFile;
+            work=temp;
+        }else {
+            work.examID=exam.id;
+            work.studentID=student.id;
+        }
+
+        //save
+        finalCollectionRepository.save(work);
+
+        return work;
+    }
 }

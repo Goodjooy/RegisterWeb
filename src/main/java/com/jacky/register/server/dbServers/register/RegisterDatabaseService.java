@@ -81,7 +81,7 @@ public class RegisterDatabaseService {
 
     public Student newStudent(Student student, Long examCycleId) {
         //check student exist;
-        var result = studentRepository.findByNameAndStuIdAndEmail(student.name, student.stdID, student.email);
+        var result = studentRepository.findByNameAndStuIDAndEmail(student.name, student.stuID, student.email);
         if (result.isEmpty())
             student = studentRepository.save(student);
         else {
@@ -100,7 +100,7 @@ public class RegisterDatabaseService {
 
     public void studentConfirm(Integer stuId, Long examId) {
         var exam = getExam(examId, GroupDepartment.lambadaDepartment());
-        var examCycle=findExamCycleByIdAndDepartment(exam.examCycleID,GroupDepartment.lambadaDepartment());
+        var examCycle = findExamCycleByIdAndDepartment(exam.examCycleID, GroupDepartment.lambadaDepartment());
         var students =
                 findStudentInExamCycle(exam.examCycleID).stream().map(student -> student.id)
                         .collect(Collectors.toSet());
@@ -110,16 +110,7 @@ public class RegisterDatabaseService {
         //生成student 和exam link
         StudentExamLink examLink = new StudentExamLink();
 
-        //判断之前考核是否通过
-        var previewExams=examCycle.examList.stream().filter(exam1 -> exam1.id<exam.id)
-                .map(exam1 -> exam1.id)
-                .sorted(Comparator.comparing(Long::longValue))
-                .collect(Collectors.toList());
-        //之前的考核连接
-        var examLinks=getAllExamLink(previewExams);
-        //之前考核未通过
-        if(examLinks.stream().filter(examLink1 -> examLink1.status==ExamStatus.PASS).count()!=examLinks.size())
-            throw new StudentNotPassAllPreExamException(stuId);
+        checkStudentSupport(exam,examCycle,stuId);
 
         if (examLinkRepository.countByStudentIDAndExamId(stuId, examId) == 0) {
             examLink.studentID = stuId;
@@ -130,6 +121,12 @@ public class RegisterDatabaseService {
         }
     }
 
+    Student findStudentByStuIdAndStuName(String stuId, String stuName, String stuEmail) {
+        var result = studentRepository.findByNameAndStuIDAndEmail(stuName, stuId, stuEmail);
+        if (result.isEmpty())
+            throw new StudentNotFoundException(stuId, stuName, stuEmail);
+        return result.get();
+    }
 
     Set<Student> findStudentById(List<Integer> ids) {
         Set<Student> students = new HashSet<>(studentRepository.findAllById(
@@ -158,7 +155,7 @@ public class RegisterDatabaseService {
         return result.get();
     }
 
-    Exam getExam(Long id, GroupDepartment department) {
+    public Exam getExam(Long id, GroupDepartment department) {
         Optional<Exam> result;
         result = examRepository.findById(id);
 
@@ -168,7 +165,22 @@ public class RegisterDatabaseService {
         return result.get();
     }
 
-    List<StudentExamLink>getAllExamLink(Collection<Long>ids){
+    List<StudentExamLink> getAllExamLink(Collection<Long> ids) {
         return examLinkRepository.findAllById(ids);
     }
+
+    void checkStudentSupport(Exam exam, ExamCycle examCycle, int studentId) {
+        //判断之前考核是否通过
+        var previewExams = examCycle.examList.stream().filter(exam1 -> exam1.id < exam.id)
+                .map(exam1 -> exam1.id)
+                .sorted(Comparator.comparing(Long::longValue))
+                .collect(Collectors.toList());
+        //之前的考核连接
+        var examLinks = getAllExamLink(previewExams);
+        //之前考核未通过
+        if (examLinks.stream().filter(examLink1 -> examLink1.status == ExamStatus.PASS).count() != examLinks.size())
+            throw new StudentNotPassAllPreExamException(studentId);
+    }
+
+
 }

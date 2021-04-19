@@ -14,7 +14,6 @@ import com.jacky.register.server.dbServers.register.RegisterDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.PushBuilder;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,7 +63,7 @@ public class RegisterRespondTransformService {
         studentRespond.id=student.id;
 
         studentRespond.email=student.email;
-        studentRespond.studentId=student.stdID;
+        studentRespond.studentId=student.stuID;
         studentRespond.name=student.name;
         studentRespond.phone=student.phone;
         studentRespond.qqId=student.qqID;

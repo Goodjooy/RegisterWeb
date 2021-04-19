@@ -10,22 +10,26 @@ import javax.persistence.*;
 public class ExamFinalCollection {
     @Id
     @GeneratedValue
+            public
     Long id;
 
     //学生id；
     @Column(nullable = false,unique = true,length = 20)
-    String studentID;
+            public
+    Integer studentID;
     @Transient
     Student student;
 
     //考核轮ID
     @Column(nullable = false)
+            public
     Long examID;
     @Transient
     Exam exam;
 
     //考核提交文件路径
     @Column(nullable = false,length = 128)
+            public
     String examFile;
 
 }
