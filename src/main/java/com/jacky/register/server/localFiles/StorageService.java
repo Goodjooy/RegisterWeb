@@ -55,8 +55,8 @@ public interface StorageService<Model> {
             throw new EmptyFileException(file.getOriginalFilename());
         String saveFileName = StorageService.storageFileNameGenerate(file.getOriginalFilename());
         var save = savePath.resolve(
-                Path.of(saveFileName).normalize().toAbsolutePath()
-        );
+                Path.of(saveFileName)
+        ).normalize().toAbsolutePath();
         //copy File
         try {
             Files.copy(file.getInputStream(), save, StandardCopyOption.REPLACE_EXISTING);

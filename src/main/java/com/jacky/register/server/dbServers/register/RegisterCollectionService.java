@@ -2,12 +2,16 @@ package com.jacky.register.server.dbServers.register;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.jacky.register.err.register.notFound.ExamCycleNotFoundException;
+import com.jacky.register.err.register.requireNotSatisfy.HandOnWorksOverTimeException;
 import com.jacky.register.err.register.requireNotSatisfy.TokenTransformFailureException;
+import com.jacky.register.models.ExamStatus;
 import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.quetionail.QuestionRepository;
 import com.jacky.register.models.database.quetionail.collection.CollectionItem;
 import com.jacky.register.models.database.register.Student;
 import com.jacky.register.models.database.register.registerCollection.ExamFinalCollection;
+import com.jacky.register.models.database.register.registerCollection.StudentExamLink;
 import com.jacky.register.models.database.register.repository.ExamFinalCollectionRepository;
 import com.jacky.register.models.respond.question.collection.QuestionCollectionData;
 import com.jacky.register.server.localFiles.ExamWorksFileStorageService;
@@ -16,9 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashMap;
 
 //学生报名收集
@@ -40,16 +44,20 @@ public class RegisterCollectionService {
     ExamWorksFileStorageService examWorksFileStorageService;
 
     public Student registerStudent(QuestionCollectionData collection, Long examCycleId) {
-        var collect = collection.toQuestionCollection(questionRepository);
         var examCycle = registerDatabaseService
                 .findExamCycleByIdAndDepartment(examCycleId, GroupDepartment.lambadaDepartment());
         var linker = registerDatabaseService.findRegisterQuestionById(examCycle.registerQuestionID);
+
+        collection.QuestionID=linker.questionID;
+        collection.time=LocalDateTime.now();
+
+        var collect = collection.toQuestionCollection(questionRepository);
 
         //map
         HashMap<Integer, CollectionItem> dataHashMap = new HashMap<>();
         for (CollectionItem data :
                 collect.items) {
-            dataHashMap.put(data.item.id, data);
+            dataHashMap.put(data.item.sortIndex, data);
         }
 
         //studentData
@@ -72,34 +80,27 @@ public class RegisterCollectionService {
         registerDatabaseService.studentConfirm(studentId, examId);
     }
 
+    final static String examIdName="examId";
+    final static String studentIdName="studentId";
+
     public ConfirmToken loadFromToken(String token) {
-        var tokens = JWT.decode(token).getAudience();
+        var tokens = JWT.decode(token).getClaims();
         ConfirmToken confirmToken = new ConfirmToken();
-        var tokenClazz = confirmToken.getClass();
-        var feilds = tokenClazz.getFields();
-        try {
-            for (int i = 0; i < feilds.length; i++) {
-                feilds[i].set(confirmToken, tokens.get(i));
-            }
-        } catch (IllegalAccessException e) {
-            throw new TokenTransformFailureException(e);
-        }
+
+        if(!tokens.containsKey(examIdName) || !tokens.containsKey(studentIdName))
+            throw new TokenTransformFailureException("Claims Key Not Found");
+        confirmToken.examId = tokens.get(examIdName).asLong();
+        confirmToken.studentId = tokens.get(studentIdName).asInt();
 
         return confirmToken;
     }
 
     public String generateConfirmToken(ConfirmToken token) {
-        var nowTime = LocalDateTime.now().plusHours(2);
-        var time = nowTime.atZone(ZoneId.systemDefault()).toInstant();
-
-
         var tokenData = JWT.create();
-        tokenData.withExpiresAt(Date.from(time));
-
-        tokenData.withAudience(token.studentId.toString(), token.examId.toString());
+        tokenData.withClaim(studentIdName, token.studentId)
+                .withClaim(examIdName, token.examId);
 
         return tokenData.sign(Algorithm.HMAC256("1141451919"));
-
     }
 
 
@@ -108,7 +109,11 @@ public class RegisterCollectionService {
         public Long examId;
     }
 
-    public ExamFinalCollection ExamWorkUpload(MultipartFile file, Long examId, String stuId, String stuName, String stuEmail) {
+    public ExamFinalCollection ExamWorkUpload(MultipartFile file,
+                                              Long examId,
+                                              String stuId,
+                                              String stuName,
+                                              String stuEmail) {
         var student = registerDatabaseService.findStudentByStuIdAndStuName(stuId, stuName, stuEmail);
         var exam = registerDatabaseService.getExam(examId, GroupDepartment.lambadaDepartment());
 
@@ -120,27 +125,44 @@ public class RegisterCollectionService {
                         GroupDepartment.lambadaDepartment()),
                 student.id);
 
-
+        //考核是否超时
+        var nowTime= LocalDate.now();
+        if (!(nowTime.isAfter(exam.startAt)&&nowTime.isBefore(exam.endAt)))
+            throw new HandOnWorksOverTimeException(exam);
         //文件上传
         var work = examWorksFileStorageService.storage(file);
 
         //check exist
-        var result=finalCollectionRepository.findByStudentIDAndExamID(student.id, exam.id);
-        if (result.isPresent()){
-            var temp=result.get();
+        var result = finalCollectionRepository.findByStudentIDAndExamID(student.id, exam.id);
+        if (result.isPresent()) {
+            var temp = result.get();
             //remove old file
             examWorksFileStorageService.delete(temp);
 
-            temp.examFile= work.examFile;
-            work=temp;
-        }else {
-            work.examID=exam.id;
-            work.studentID=student.id;
+            temp.examFile = work.examFile;
+            work = temp;
+        } else {
+            work.examID = exam.id;
+            work.studentID = student.id;
         }
 
         //save
         finalCollectionRepository.save(work);
 
+        //change status
+        var status=registerDatabaseService.findExamLinkByStudentId(student.id);
+        var temp=new HashMap<Long, StudentExamLink>();
+        for (StudentExamLink examLink :
+                status) {
+            temp.put(examLink.examId, examLink);
+        }
+        if(!temp.containsKey(examId))
+            // TODO: 2021/4/20 exam not found exception
+            throw new ExamCycleNotFoundException(examId,GroupDepartment.lambadaDepartment());
+        var stuStatus=temp.get(examId);
+        stuStatus.status= ExamStatus.ASSESS;
+
+        registerDatabaseService.examLinkRepository.save(stuStatus);
         return work;
     }
 }

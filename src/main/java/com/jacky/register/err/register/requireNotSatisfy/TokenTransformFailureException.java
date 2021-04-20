@@ -8,4 +8,7 @@ public class TokenTransformFailureException extends BaseException {
     public TokenTransformFailureException(Throwable e){
         super(errorCode,e);
     }
+    public TokenTransformFailureException(String  message){
+        super(errorCode,message);
+    }
 }

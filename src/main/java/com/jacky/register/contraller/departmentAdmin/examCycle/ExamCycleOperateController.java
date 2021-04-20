@@ -1,5 +1,7 @@
 package com.jacky.register.contraller.departmentAdmin.examCycle;
 
+import com.jacky.register.dataHandle.Info;
+import com.jacky.register.dataHandle.LoggerHandle;
 import com.jacky.register.dataHandle.Result;
 import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.request.register.examCycle.CreateExam;
@@ -30,6 +32,8 @@ public class ExamCycleOperateController {
     @Autowired
     RegisterRespondTransformService registerRespondTransformService;
 
+    LoggerHandle logger =LoggerHandle.newLogger(ExamCycleOperateController.class);
+
     @GetMapping("/examCycle/all")
     public Result<List<?>> getAllExamCycle(
             @RequestParam(value = "pageSize", defaultValue = "-1") Integer pageSize,
@@ -46,6 +50,10 @@ public class ExamCycleOperateController {
         var department = departmentServer.getFirstDepartment();
         var examCycle = databaseService.findExamCycleByIdAndDepartment(id, department);
         var examCycleRespond = registerRespondTransformService.toRespond(examCycle);
+
+        logger.SuccessOperate("Get ExamCycle Detail",
+                Info.of(id,"ExamCycleID"),
+                Info.of(department.name,"DepartmentName"));
         return Result.okResult(examCycleRespond);
     }
 
@@ -59,6 +67,9 @@ public class ExamCycleOperateController {
 
         var cycle = operationService.newTermCycle(department, examCycle.data);
 
+        logger.SuccessOperate("New ExamCycle",
+                Info.of(cycle.id,"NewExamCycleID"),
+                Info.of(department.name,"DepartmentName"));
         return Result.okResult(cycle.id);
     }
 
@@ -70,6 +81,10 @@ public class ExamCycleOperateController {
         var department = departmentServer.getFirstDepartment();
 
         var cycle = operationService.updateExamCycle(department, examCycle.data, examCycle.id);
+
+        logger.SuccessOperate("Update ExamCycle",
+                Info.of(cycle.id,"ExamCycleID"),
+                Info.of(department.name,"DepartmentName"));
         return Result.okResult(cycle.id);
     }
 
@@ -92,6 +107,10 @@ public class ExamCycleOperateController {
 
         var newExam = operationService.addExamIntoExamCycle(department, exam.data);
 
+        logger.SuccessOperate("New Exam",
+                Info.of(newExam.examCycleID,"ExamCycleID"),
+                Info.of(newExam.id,"NewExamID"),
+                Info.of(department.name,"DepartmentName"));
         return Result.okResult(newExam.id);
     }
 
@@ -102,6 +121,11 @@ public class ExamCycleOperateController {
     ) {
         var exam = databaseService.getExam(examId, GroupDepartment.lambadaDepartment());
         var newExam = operationService.fileUpload(file, exam);
+
+        logger.SuccessOperate("New Exam",
+                Info.of(newExam.examCycleID,"ExamCycleID"),
+                Info.of(newExam.id,"NewExamID")
+        );
         return Result.okResult(exam.id);
     }
 
@@ -113,6 +137,10 @@ public class ExamCycleOperateController {
 
         var newExam = operationService.updateExam(department, exam.data, exam.examId);
 
+        logger.SuccessOperate("New Exam",
+                Info.of(newExam.examCycleID,"ExamCycleID"),
+                Info.of(newExam.id,"NewExamID"),
+                Info.of(department.name,"DepartmentName"));
         return Result.okResult(newExam.id);
     }
 }

@@ -15,7 +15,7 @@ public class ExamWorksFileStorageService implements StorageService<ExamFinalColl
     final Path savePath;
     @Autowired
     public ExamWorksFileStorageService(StorageConfig config){
-        savePath=Path.of(config.getStoragePath(),"exam-works");
+        savePath=Path.of(config.getStoragePath(),"exam-works").normalize().toAbsolutePath();
 
         this.init();
     }

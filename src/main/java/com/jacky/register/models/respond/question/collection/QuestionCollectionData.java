@@ -112,7 +112,7 @@ public class QuestionCollectionData {
 
         var checkRequire = requires.stream()
                 .filter(sort -> collection.items.stream()
-                        .anyMatch(collectionItem -> !collectionItem.item.sortIndex.equals(sort)))
+                        .allMatch(collectionItem -> collectionItem.item.sortIndex.equals(sort)))
                 .count();
         if (checkRequire > 0) {
             throw new RequireQuestionItemNotFillException(checkRequire);

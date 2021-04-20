@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface StudentExamLinkRepository extends JpaRepository<StudentExamLink,Long> {
@@ -13,4 +14,5 @@ public interface StudentExamLinkRepository extends JpaRepository<StudentExamLink
     Set<StudentExamLink> findByStudentID(Integer id);
 
     long countByStudentIDAndExamId(Integer stuId,Long examId);
+    Optional<StudentExamLink>  findByStudentIDAndExamId(Integer stuId,Long examId);
 }
