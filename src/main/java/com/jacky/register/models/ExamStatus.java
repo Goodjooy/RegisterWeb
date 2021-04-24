@@ -4,5 +4,11 @@ public enum ExamStatus {
     REGISTER,
     ASSESS,
     PASS,
-    FAILURE
+    FAILURE,
+
+    ADMIN_SET;
+
+    public boolean canBeContinue(){
+        return this==PASS || this==ADMIN_SET;
+    }
 }

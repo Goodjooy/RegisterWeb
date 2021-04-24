@@ -43,12 +43,17 @@ public class RegisterDatabaseService {
 
     public ExamCycle findExamCycleByIdAndDepartment(Long id, GroupDepartment department) {
         var examCycle = getExamCycle(id, department);
-        // TODO: 2021/4/17 extra data;
         examCycle.examList = findExamByExamCycleId(id);
         examCycle.studentSet = findStudentInExamCycle(id);
         return examCycle;
     }
+    public Exam findExamById(long id){
+        var exam=getExam(id,GroupDepartment.lambadaDepartment());
 
+        exam.termStudents=findStudentInExam(id);
+
+        return exam;
+    }
     public List<Exam> findExamByExamCycleId(long id) {
         var exams = examRepository.findAllByExamCycleID(id);
 
@@ -64,6 +69,10 @@ public class RegisterDatabaseService {
         return examLinkRepository.findByStudentID(id);
     }
 
+    public List<StudentExamLink> findExamLinkByExamId(Long id) {
+        return examLinkRepository.findByExamId(id);
+    }
+
     public RegisterQuestion findRegisterQuestionById(long id) {
         var result = registerQuestionRepository.findById(id);
         if (result.isEmpty())
@@ -74,6 +83,27 @@ public class RegisterDatabaseService {
 
     public Set<Student> findStudentInExamCycle(long id) {
         var examCycleLinks = examCycleLinkRepository.findByExamCycleId(id);
+        return findStudentById(
+                examCycleLinks.stream().map(s -> s.studentID).collect(Collectors.toList())
+        );
+    }
+
+    public String getStudentExamWorks(Long examId,Integer studentID){
+        var result= examFinalCollectionRepository.findByStudentIDAndExamID(studentID,examId);
+        if (result.isEmpty())
+            return null;
+        return result.get().examFile;
+    }
+
+    public ExamStatus getStudentExamStatues(Long examId, Integer stuId) {
+        var result = examLinkRepository.findByStudentIDAndExamId(stuId, examId);
+        if (result.isEmpty())
+            throw new StudentNotFoundException(stuId);
+        return result.get().status;
+    }
+
+    public Set<Student> findStudentInExam(long id) {
+        var examCycleLinks = examLinkRepository.findByExamId(id);
         return findStudentById(
                 examCycleLinks.stream().map(s -> s.studentID).collect(Collectors.toList())
         );
@@ -98,6 +128,13 @@ public class RegisterDatabaseService {
         return student;
     }
 
+    public StudentExamLink getExamLinkByStudentIdAndExamId(Integer stuId,Long examId){
+        var result=examLinkRepository.findByStudentIDAndExamId(stuId,examId);
+        if(result.isEmpty())
+            throw new StudentNotFoundException(stuId);
+        return result.get();
+    }
+
     public void studentConfirm(Integer stuId, Long examId) {
         var exam = getExam(examId, GroupDepartment.lambadaDepartment());
         var examCycle = findExamCycleByIdAndDepartment(exam.examCycleID, GroupDepartment.lambadaDepartment());
@@ -110,7 +147,7 @@ public class RegisterDatabaseService {
         //生成student 和exam link
         StudentExamLink examLink = new StudentExamLink();
 
-        checkStudentSupport(exam,examCycle,stuId);
+        checkStudentSupport(exam, examCycle, stuId);
 
         if (examLinkRepository.countByStudentIDAndExamId(stuId, examId) == 0) {
             examLink.studentID = stuId;
@@ -120,7 +157,12 @@ public class RegisterDatabaseService {
             examLinkRepository.save(examLink);
         }
     }
-
+    Student findStudentById(Integer id) {
+        var result = studentRepository.findById(id);
+        if (result.isEmpty())
+            throw new StudentNotFoundException(id);
+        return result.get();
+    }
     Student findStudentByStuIdAndStuName(String stuId, String stuName, String stuEmail) {
         var result = studentRepository.findByNameAndStuIDAndEmail(stuName, stuId, stuEmail);
         if (result.isEmpty())
@@ -154,7 +196,6 @@ public class RegisterDatabaseService {
             throw new ExamCycleNotFoundException(id, department);
         return result.get();
     }
-
     public Exam getExam(Long id, GroupDepartment department) {
         Optional<Exam> result;
         result = examRepository.findById(id);
@@ -164,7 +205,6 @@ public class RegisterDatabaseService {
             throw new ExamCycleNotFoundException(id, department);
         return result.get();
     }
-
     List<StudentExamLink> getAllExamLink(Collection<Long> ids) {
         return examLinkRepository.findAllById(ids);
     }
@@ -178,7 +218,7 @@ public class RegisterDatabaseService {
         //之前的考核连接
         var examLinks = getAllExamLink(previewExams);
         //之前考核未通过
-        if (examLinks.stream().filter(examLink1 -> examLink1.status == ExamStatus.PASS).count() != examLinks.size())
+        if (examLinks.stream().filter(examLink1 -> examLink1.status.canBeContinue()).count() != examLinks.size())
             throw new StudentNotPassAllPreExamException(studentId);
     }
 

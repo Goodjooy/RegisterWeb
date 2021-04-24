@@ -5,5 +5,5 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/department/admin/operation")
-public class DepartmentController {
+public class AdminDepartmentController {
 }

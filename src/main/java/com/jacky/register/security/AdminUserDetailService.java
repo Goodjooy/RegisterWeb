@@ -39,7 +39,7 @@ public class AdminUserDetailService implements UserDetailsService {
             builder.roles(UserRole.ADMIN.getName());
             builder.password(admin.password);
 
-            return builder.build();
+            return DatabaseEntityUserDetails.fromUserDetails(builder.build(), admin,admin.groupIn.ID);
         }
         throw new UsernameNotFoundException("admin Not Found");
     }
