@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.List;
 
 public class ExamStudentInfo implements Serializable {
+    public Integer id;
+
     public String name;
     public String studentId;
     public String email;

@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 public class ExamCycleInfo implements Serializable {
-    public String examCycleName;
     public Long examCycleId;
+    public String examCycleName;
     public Integer departmentId;
 
 }

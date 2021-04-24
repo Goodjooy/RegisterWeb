@@ -7,7 +7,9 @@ import com.jacky.register.models.database.register.registerCollection.StudentExa
 import com.jacky.register.models.database.register.registerCollection.StudentExamLink;
 import com.jacky.register.models.database.register.repository.StudentExamLinkRepository;
 import com.jacky.register.models.respond.examCycle.data.*;
+import com.jacky.register.server.localFiles.ExamWorksFileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,6 +23,9 @@ public class RegisterDataService {
     RegisterDatabaseService registerDatabaseService;
     @Autowired
     StudentExamLinkRepository examLinkRepository;
+
+    @Autowired
+    ExamWorksFileStorageService worksFileStorageService;
 
     //information get
     public List<ExamCycleInfo> getAllExamCycle(GroupDepartment department) {
@@ -69,6 +74,8 @@ public class RegisterDataService {
                     info.email = student.email;
                     info.name = student.name;
 
+                    info.id=student.id;
+
                     info.examStatus = registerDatabaseService
                             .findExamLinkByStudentId(student.id)
                             .stream().map(
@@ -94,6 +101,8 @@ public class RegisterDataService {
                 .map(student -> {
                     ExamStudentInfo info = new ExamStudentInfo();
 
+                    info.id=student.id;
+
                     info.studentId = student.stuID;
                     info.name = student.name;
                     info.email = student.email;
@@ -105,23 +114,33 @@ public class RegisterDataService {
                     return info;
                 }).collect(Collectors.toList());
     }
+    public Resource getStudentWork(Integer stuId,long examId){
+        var result=registerDatabaseService.findStudentById(stuId);
+        var stuWorks=registerDatabaseService.getStudentExamWorks(examId,result.id);
+
+        return worksFileStorageService.loadAsResource(stuWorks);
+    }
 
     //考核审核
     //通过 和 不通过
-    public void setStudentPassExam(Integer studentId,Long examId){
+    public ExamStatus setStudentPassExam(Integer studentId,Long examId){
         var student=registerDatabaseService.getExamLinkByStudentIdAndExamId(studentId, examId);
 
         student.status= ExamStatus.PASS;
 
         examLinkRepository.save(student);
+
+        return ExamStatus.PASS;
     }
 
-    public void setStudentFailureExam(Integer studentId,Long examId){
+    public ExamStatus setStudentFailureExam(Integer studentId,Long examId){
         var student=registerDatabaseService.getExamLinkByStudentIdAndExamId(studentId, examId);
 
         student.status= ExamStatus.FAILURE;
 
         examLinkRepository.save(student);
+
+        return ExamStatus.FAILURE;
     }
 
     //中途插入新学生
@@ -182,6 +201,11 @@ public class RegisterDataService {
 
             examLinkRepository.save(examLink);
         }
+    }
+
+    public Integer getStudentId(String stuName,String stuId,String stuEmail){
+        var student=registerDatabaseService.findStudentByStuIdAndStuName(stuName, stuId, stuEmail);
+        return student.id;
     }
 
 }
