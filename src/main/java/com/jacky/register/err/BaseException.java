@@ -7,7 +7,7 @@ import com.jacky.register.dataHandle.Result;
  * 4XX NOT FOUND
  * 3XX BAD TYPE
  * 2XX REQUIRE NOT SATISFY
- * 1XX <---->
+ * 1XX Operate Failure
  * 0XX <---->
  *
  */

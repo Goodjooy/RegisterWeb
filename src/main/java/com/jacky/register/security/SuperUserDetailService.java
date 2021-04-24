@@ -36,7 +36,7 @@ public class SuperUserDetailService implements UserDetailsService {
             builder.roles(UserRole.SUPER_ADMIN.getName());
             builder.password(admin.password);
 
-            return builder.build();
+            return DatabaseEntityUserDetails.fromUserDetails(builder.build(),admin);
         }
         throw new UsernameNotFoundException("admin Not Found");
     }

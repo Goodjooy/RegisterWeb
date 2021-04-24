@@ -22,6 +22,10 @@ repositories {
 }
 
 dependencies {
+	compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
+	compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+	implementation('org.springframework.session:spring-session-data-redis')
+	implementation('com.auth0:java-jwt:3.8.3')
 	implementation('org.springframework.boot:spring-boot-starter-mail')
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -30,6 +34,9 @@ dependencies {
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation('commons-io:commons-io:2.8.0')
+	implementation('org.owasp.esapi:esapi:2.2.2.0')
+	implementation('org.jsoup:jsoup:1.13.1')
 	implementation 'org.jetbrains:annotations:20.1.0'
 	implementation 'junit:junit:4.12'
 	runtimeOnly 'mysql:mysql-connector-java'

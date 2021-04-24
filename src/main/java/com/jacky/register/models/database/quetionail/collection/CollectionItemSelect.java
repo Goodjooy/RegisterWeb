@@ -3,7 +3,7 @@ package com.jacky.register.models.database.quetionail.collection;
 import com.jacky.register.models.database.quetionail.choices.SelectSort;
 
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
+
 @Entity
 public class CollectionItemSelect {
 
@@ -13,11 +13,10 @@ public class CollectionItemSelect {
 
     @ManyToOne
     @JoinColumn
-            public
+    public
     SelectSort select;
 
     @Column(length = 32)
     public
-
     String value;
 }

@@ -33,6 +33,10 @@ public class ItemSort {
     public
     Boolean requireFill;
 
+    @Column(nullable = false)
+    public
+    Boolean uniqueItem;
+
     @OneToMany(fetch = FetchType.LAZY)
     @OrderBy("sort_index")
     public List<SelectSort>selects;

@@ -1,4 +1,4 @@
-package com.jacky.register.server.dbServers;
+package com.jacky.register.server.dbServers.qustion;
 
 import com.jacky.register.err.qustion.notFound.ItemNotFoundException;
 import com.jacky.register.err.qustion.notFound.ItemSelectNotFoundException;
@@ -81,12 +81,13 @@ public class QuestionControlServer {
         return newQuestionItem(create.data.itemData,create.data.type);
     }
 
-    public ItemSort addQuestionItem(Questionable question, QuestionSubItem item,boolean require) {
+    public ItemSort addQuestionItem(Questionable question, QuestionSubItem item,boolean require,boolean unique) {
         ItemSort sort = new ItemSort();
         sort.sortIndex = question.items.size() + 1;
         sort.item = item;
         sort.question = question;
         sort.requireFill=require;
+        sort.uniqueItem =unique;
         question.items.add(sort);
 
 
@@ -182,6 +183,10 @@ public class QuestionControlServer {
         var q = getQuestionByID(id);
         q.publish = true;
         questionRepository.save(q);
+    }
+
+    boolean isPublic(Questionable questionable){
+        return questionable.publish;
     }
 
     public List<Questionable> getALL() {
