@@ -14,6 +14,7 @@ import com.jacky.register.models.database.register.registerCollection.ExamFinalC
 import com.jacky.register.models.database.register.registerCollection.StudentExamLink;
 import com.jacky.register.models.database.register.repository.ExamFinalCollectionRepository;
 import com.jacky.register.models.respond.question.collection.QuestionCollectionData;
+import com.jacky.register.server.dbServers.qustion.QuestionCollectionServer;
 import com.jacky.register.server.localFiles.ExamWorksFileStorageService;
 import com.jacky.register.server.modelTransformServers.RegisterRespondTransformService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,9 @@ public class RegisterCollectionService {
 
     @Autowired
     ExamWorksFileStorageService examWorksFileStorageService;
+
+    @Autowired
+    QuestionCollectionServer questionCollectionServer;
 
     public Student registerStudent(QuestionCollectionData collection, Long examCycleId) {
         var examCycle = registerDatabaseService
@@ -72,6 +76,7 @@ public class RegisterCollectionService {
             student.qqID = dataHashMap.get(linker.qqItemID).data;
         if (dataHashMap.containsKey(linker.phoneItemID))
             student.phone = dataHashMap.get(linker.phoneItemID).data;
+        questionCollectionServer.sendQuestionCollect(collect);
 
         return registerDatabaseService.newStudent(student, examCycle.id);
     }

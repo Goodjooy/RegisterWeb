@@ -1,14 +1,9 @@
 package com.jacky.register.security.filters;
 
-import com.jacky.register.models.database.quetionail.collection.CollectionItemSelect;
-import com.jacky.register.models.respond.question.collection.QuestionCollectionData;
 import com.jacky.register.security.DatabaseEntityUserDetails;
 import com.jacky.register.security.UserRole;
-import com.jacky.register.security.authenticationToken.AdminAndDepartmentAuthenticationToken;
-import org.hibernate.mapping.Collection;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,7 +15,6 @@ import javax.servlet.http.HttpFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,17 +32,25 @@ public class ExtraDateFilter extends HttpFilter {
         var context = SecurityContextHolder.getContext();
         var auth = context.getAuthentication();
 
-        if (auth == null)
+        if (auth == null) {
+            chain.doFilter(request, response);
             return;
 
-        DatabaseEntityUserDetails<?> userDetails= (DatabaseEntityUserDetails<?>) auth.getPrincipal();
+
+        }
+        DatabaseEntityUserDetails<?> userDetails;
+        if (auth.getPrincipal() instanceof DatabaseEntityUserDetails)
+            userDetails = (DatabaseEntityUserDetails<?>) auth.getPrincipal();
+        else {
+            chain.doFilter(request, response);
+            return;
+        }
 
 
-
-        var allRoles=auth.getAuthorities()
+        var allRoles = auth.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
-                .map(s -> s.replace("ROLE_",""))
+                .map(s -> s.replace("ROLE_", ""))
                 .collect(Collectors.toList());
 
         if (allRoles.contains(UserRole.SUPER_ADMIN.getName())) {
@@ -62,10 +64,11 @@ public class ExtraDateFilter extends HttpFilter {
                     break;
                 }
             }
+            context.setAuthentication(auth);
+            chain.doFilter(request, response);
+            return;
         }
-
-
-        context.setAuthentication(auth);
         chain.doFilter(request, response);
+
     }
 }

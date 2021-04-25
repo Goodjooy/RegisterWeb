@@ -11,6 +11,7 @@ public class ExamStudentInfo implements Serializable {
     public String name;
     public String studentId;
     public String email;
+    public String qq;
 
     public ExamStatus status;
 

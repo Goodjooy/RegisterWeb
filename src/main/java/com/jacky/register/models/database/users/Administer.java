@@ -9,6 +9,7 @@ import java.io.Serializable;
 public class Administer implements Serializable {
     @Id
             @GeneratedValue
+    public
     Integer ID;
 
     @Column(nullable = false,length = 32)
@@ -19,7 +20,7 @@ public class Administer implements Serializable {
     String email;
     public String password;
 
-    @ManyToOne(targetEntity = GroupDepartment.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = GroupDepartment.class, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
             public
     GroupDepartment groupIn;

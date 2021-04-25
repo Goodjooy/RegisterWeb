@@ -5,13 +5,14 @@ import com.jacky.register.models.database.users.Administer;
 import com.jacky.register.models.database.register.Student;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * 部门实体类
  */
 @Entity
-public class GroupDepartment {
+public class GroupDepartment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public

@@ -32,9 +32,9 @@ public class AdminUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var builder = User.withUsername(username);
         var result = repository.findByEmail(username);
-
         if (result.isPresent()) {
             var admin = result.get();
+            var groupIn=admin.groupIn;
 
             builder.roles(UserRole.ADMIN.getName());
             builder.password(admin.password);

@@ -28,7 +28,7 @@ public class Student {
     @Column(length = 20, unique = true)
             public
     String phone;
-    @Column(length = 20, unique = true)
+    @Column(length = 20, unique = true,nullable = false)
             public
     String qqID;
 
