@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.jacky.register.err.register.notFound.ExamCycleNotFoundException;
 import com.jacky.register.err.register.requireNotSatisfy.HandOnWorksOverTimeException;
 import com.jacky.register.err.register.requireNotSatisfy.TokenTransformFailureException;
-import com.jacky.register.models.ExamStatus;
+import com.jacky.register.models.status.ExamStatus;
 import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.quetionail.QuestionRepository;
 import com.jacky.register.models.database.quetionail.collection.CollectionItem;
@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.HashMap;
 
 //学生报名收集
@@ -77,6 +76,7 @@ public class RegisterCollectionService {
         if (dataHashMap.containsKey(linker.phoneItemID))
             student.phone = dataHashMap.get(linker.phoneItemID).data;
         questionCollectionServer.sendQuestionCollect(collect);
+
 
         return registerDatabaseService.newStudent(student, examCycle.id);
     }

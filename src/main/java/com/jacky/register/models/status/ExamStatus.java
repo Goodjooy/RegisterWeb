@@ -1,6 +1,8 @@
-package com.jacky.register.models;
+package com.jacky.register.models.status;
 
 public enum ExamStatus {
+    ALL,
+
     REGISTER,
     ASSESS,
     PASS,

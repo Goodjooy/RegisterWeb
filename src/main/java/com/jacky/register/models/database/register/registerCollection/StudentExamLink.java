@@ -1,6 +1,6 @@
 package com.jacky.register.models.database.register.registerCollection;
 
-import com.jacky.register.models.ExamStatus;
+import com.jacky.register.models.status.ExamStatus;
 import com.jacky.register.models.database.Term.Exam;
 import com.jacky.register.models.database.register.Student;
 

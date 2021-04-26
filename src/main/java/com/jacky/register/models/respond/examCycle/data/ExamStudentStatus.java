@@ -1,7 +1,6 @@
 package com.jacky.register.models.respond.examCycle.data;
 
-import com.jacky.register.models.ExamStatus;
-import org.apache.juli.logging.Log;
+import com.jacky.register.models.status.ExamStatus;
 
 import java.io.Serializable;
 

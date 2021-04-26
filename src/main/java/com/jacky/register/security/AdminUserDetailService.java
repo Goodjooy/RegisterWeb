@@ -30,6 +30,18 @@ public class AdminUserDetailService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        var userInfo=username.split(";");
+        // no extra info -> admin
+        if(userInfo.length<2)
+            username=userInfo[0];
+        else {
+            if (UserRole.SUPER_ADMIN.getName().equalsIgnoreCase(userInfo[1])){
+                throw new UsernameNotFoundException("Super User Mode");
+            }else {
+                username=userInfo[0];
+            }
+        }
+
         var builder = User.withUsername(username);
         var result = repository.findByEmail(username);
         if (result.isPresent()) {

@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.time.LocalDate;
 
 @Entity
 //报名表
@@ -29,4 +30,12 @@ public class RegisterQuestion {
     public Integer qqItemID;
     @Column(nullable = true)
     public Integer phoneItemID;
+
+    @Column(nullable = false)
+            public
+    Boolean available;
+
+    @Column
+    public
+    LocalDate endAt;
 }

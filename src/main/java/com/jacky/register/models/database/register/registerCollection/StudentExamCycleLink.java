@@ -2,6 +2,7 @@ package com.jacky.register.models.database.register.registerCollection;
 
 import com.jacky.register.models.database.Term.ExamCycle;
 import com.jacky.register.models.database.register.Student;
+import com.jacky.register.models.status.ExamCycleStatus;
 
 import javax.persistence.*;
 
@@ -28,4 +29,8 @@ public class StudentExamCycleLink {
     @Transient
             public
     ExamCycle examCycle;
+
+    @Column(nullable = false)
+    public
+    ExamCycleStatus status;
 }

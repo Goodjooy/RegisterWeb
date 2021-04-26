@@ -1,11 +1,12 @@
 package com.jacky.register.server.dbServers.register;
 
-import com.jacky.register.models.ExamStatus;
 import com.jacky.register.models.database.group.GroupDepartment;
-import com.jacky.register.models.database.register.registerCollection.StudentExamCycleLink;
+import com.jacky.register.models.database.register.Student;
 import com.jacky.register.models.database.register.registerCollection.StudentExamLink;
 import com.jacky.register.models.database.register.repository.StudentExamLinkRepository;
 import com.jacky.register.models.respond.examCycle.data.*;
+import com.jacky.register.models.status.ExamCycleStatus;
+import com.jacky.register.models.status.ExamStatus;
 import com.jacky.register.server.localFiles.ExamWorksFileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,6 +67,18 @@ public class RegisterDataService {
     public List<ExamCycleStudentInfo> getAllExamCycleStudentInfo(Long examCycleId) {
         var students = registerDatabaseService.findStudentInExamCycle(examCycleId);
 
+        return toExamCycleStudentInfo(students, examCycleId);
+    }
+
+    public List<ExamCycleStudentInfo> getSearchedExamCycleStudentInfo(long examCycleId, String keyWord) {
+        if (keyWord == null || keyWord.equals(""))
+            return getAllExamCycleStudentInfo(examCycleId);
+
+        var students = registerDatabaseService.findKeyWordStudentInExamCycle(examCycleId, keyWord);
+        return toExamCycleStudentInfo(students, examCycleId);
+    }
+
+    List<ExamCycleStudentInfo> toExamCycleStudentInfo(Set<Student> students, long examCycleId) {
         return students
                 .stream().map(student -> {
                     ExamCycleStudentInfo info = new ExamCycleStudentInfo();
@@ -74,6 +88,11 @@ public class RegisterDataService {
                     info.name = student.name;
                     info.qq = student.qqID;
                     info.id = student.id;
+
+                    info.examCycleStatus = new ExamCycleStudentStatus();
+                    info.examCycleStatus.examCycleId = examCycleId;
+                    info.examCycleStatus.status = registerDatabaseService
+                            .getStudentExamCycleStatus(student, examCycleId);
 
                     info.examStatus = registerDatabaseService
                             .findExamLinkByStudentId(student.id)
@@ -93,9 +112,22 @@ public class RegisterDataService {
                 }).collect(Collectors.toList());
     }
 
-    public List<ExamStudentInfo> getAllExamStudentInfo(Long examId, GroupDepartment department) {
+    public List<ExamStudentInfo> getAllExamStudentInfo(Long examId) {
         var students = registerDatabaseService.findStudentInExam(examId);
 
+        return toExamStudentInfo(students, examId);
+    }
+
+    public List<ExamStudentInfo> getSearchExamStudentInfo(Long examId, String keyWord) {
+        if (keyWord == null || keyWord.equals(""))
+            return getAllExamStudentInfo(examId);
+
+        var students = registerDatabaseService.searchStudentInExam(examId, keyWord);
+
+        return toExamStudentInfo(students, examId);
+    }
+
+    List<ExamStudentInfo> toExamStudentInfo(Set<Student> students, long examId) {
         return students.stream()
                 .map(student -> {
                     ExamStudentInfo info = new ExamStudentInfo();
@@ -144,6 +176,17 @@ public class RegisterDataService {
         return ExamStatus.FAILURE;
     }
 
+    public ExamCycleStatus setStudentExamCycleStatus(int studentId,long examCycleId,ExamCycleStatus status){
+        var student=registerDatabaseService.findStudentExamCycleLinkByStudentAndExamCycleID(
+                studentId,
+                examCycleId
+        );
+        student.status=status;
+        registerDatabaseService.examCycleLinkRepository.save(student);
+        return status;
+
+    }
+
     //中途插入新学生
     public void insertStudentIntoExam(int studentId, Long targetExamId, GroupDepartment department) {
         var student = registerDatabaseService.findStudentById(studentId);
@@ -155,12 +198,12 @@ public class RegisterDataService {
 
         //如果学生没有报名考核周期
         if (!registerStudentIds.contains(studentId)) {
-            StudentExamCycleLink examCycleLink = new StudentExamCycleLink();
-            examCycleLink.examCycleId = examCycle.id;
-            examCycleLink.studentID = student.id;
-
-            registerDatabaseService.newStudent(student, examCycle.id);
+            registerDatabaseService.newStatusStudent(student, examCycle.id, ExamCycleStatus.ADMIN_SET);
+        } else {
+            //设置接受
+            registerDatabaseService.setExamCycleStatus(student, examCycle.id, ExamCycleStatus.ADMIN_SET);
         }
+
 
         //如果学生不在本轮考核
 

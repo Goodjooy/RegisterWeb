@@ -1,9 +1,8 @@
 package com.jacky.register.models.respond.examCycle.data;
 
-import com.jacky.register.models.ExamStatus;
+import com.jacky.register.models.status.ExamStatus;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class ExamStudentInfo implements Serializable {
     public Integer id;

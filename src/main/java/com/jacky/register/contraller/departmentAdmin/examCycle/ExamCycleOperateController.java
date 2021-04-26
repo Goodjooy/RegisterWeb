@@ -98,6 +98,13 @@ public class ExamCycleOperateController {
         return null;
     }
 
+    @PostMapping("/examCycle/available")
+    public Result<Boolean>reventExamCycleRegisterStatus(@RequestParam("id") Long id){
+        var status=operationService.changeExamCycleRegisterStatus(departmentServer.getFirstDepartment(),id);
+
+        return Result.okResult(status);
+    }
+
     @PostMapping("/exam")
     public Result<Long> newExamInExamCycle(
             @RequestBody CreateExam exam

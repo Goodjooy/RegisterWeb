@@ -1,6 +1,7 @@
 package com.jacky.register.server.dbServers.register;
 
 import com.jacky.register.err.register.notFound.ExamCycleNotFoundException;
+import com.jacky.register.err.register.notFound.RegisterQuestionNotFoundException;
 import com.jacky.register.models.database.Term.Exam;
 import com.jacky.register.models.database.Term.ExamCycle;
 import com.jacky.register.models.database.Term.repository.ExamCycleRepository;
@@ -47,6 +48,7 @@ public class RegisterOperationService {
         cycle.name = examCycle.name;
         cycle.registerQuestionID = register.id;
 
+
         examCycleRepository.save(cycle);
 
         return cycle;
@@ -70,6 +72,8 @@ public class RegisterOperationService {
         return cycle;
     }
 
+
+
     public void removeExamCycle(GroupDepartment department, Long id) {
         var result = examCycleRepository.findByIdAndDepartmentID(id, department.ID);
         if (result.isEmpty())
@@ -79,6 +83,19 @@ public class RegisterOperationService {
 
     }
 
+    public boolean changeExamCycleRegisterStatus(GroupDepartment department, long id){
+        var cycle=getExamCycle(id,department);
+        var result=registerQuestionRepository.findById(cycle.registerQuestionID);
+        if (result.isEmpty())
+            throw new RegisterQuestionNotFoundException(cycle.registerQuestionID);
+
+        var question=result.get();
+        question.available=!question.available;
+
+        question=registerQuestionRepository.save(question);
+
+        return question.available;
+    }
     public Exam addExamIntoExamCycle(GroupDepartment department, ExamData exam) {
         var examCycle = getExamCycle(exam.cycleID, department);
 
@@ -130,6 +147,9 @@ public class RegisterOperationService {
         question.studentItemID = linker.studentIDItemID;
         question.studentNameItemID = linker.studentNameItemID;
         question.phoneItemID= linker.phoneItemID;
+
+        question.endAt=linker.endAt;
+        question.available=true;
 
         return question;
     }

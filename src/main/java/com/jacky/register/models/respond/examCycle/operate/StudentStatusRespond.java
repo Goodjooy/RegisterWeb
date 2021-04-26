@@ -1,6 +1,6 @@
 package com.jacky.register.models.respond.examCycle.operate;
 
-import com.jacky.register.models.ExamStatus;
+import com.jacky.register.models.status.ExamStatus;
 
 import java.io.Serializable;
 

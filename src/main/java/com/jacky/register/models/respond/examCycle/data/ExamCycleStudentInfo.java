@@ -10,5 +10,7 @@ public class ExamCycleStudentInfo {
     public String email;
     public String qq;
 
-    public List<ExamStudentStatus>examStatus;
+    public ExamCycleStudentStatus examCycleStatus;
+
+    public List<ExamStudentStatus> examStatus;
 }

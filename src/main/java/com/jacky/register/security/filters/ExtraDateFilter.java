@@ -42,6 +42,7 @@ public class ExtraDateFilter extends HttpFilter {
         if (auth.getPrincipal() instanceof DatabaseEntityUserDetails)
             userDetails = (DatabaseEntityUserDetails<?>) auth.getPrincipal();
         else {
+            auth.setAuthenticated(false);
             chain.doFilter(request, response);
             return;
         }
