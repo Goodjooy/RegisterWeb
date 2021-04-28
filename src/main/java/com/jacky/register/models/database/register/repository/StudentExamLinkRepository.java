@@ -15,4 +15,13 @@ public interface StudentExamLinkRepository extends JpaRepository<StudentExamLink
 
     long countByStudentIDAndExamId(Integer stuId,Long examId);
     Optional<StudentExamLink>  findByStudentIDAndExamId(Integer stuId,Long examId);
+
+    //删除学生连接
+    void deleteByStudentIDAndExamId(Integer stuId,Long examId);
+    //删除考核轮
+    void deleteAllByExamId(long examId);
+
+    //获取大于给定exam的连接
+    List<StudentExamLink>findByStudentIDAndExamIdGreaterThan(int  stuId,long examId);
+
 }

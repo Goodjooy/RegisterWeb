@@ -61,6 +61,7 @@ public class DepartmentServer {
             throw new DepartAdminTypeNotFoundException(userDetails.getModel().getClass());
         throw new DepartmentNotFoundException(userDetails.getDepartmentId());
     }
+
     public DepartmentInformation toRespond(GroupDepartment department){
         DepartmentInformation information=new DepartmentInformation();
 

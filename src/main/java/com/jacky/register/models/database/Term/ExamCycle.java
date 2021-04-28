@@ -1,5 +1,6 @@
 package com.jacky.register.models.database.Term;
 
+import com.jacky.register.models.database.register.RegisterQuestion;
 import com.jacky.register.models.database.register.Student;
 
 import javax.persistence.*;
@@ -37,7 +38,9 @@ public class ExamCycle {
     @Column(nullable = false)
             public
     Long registerQuestionID;
-
+    @Transient
+            public
+    RegisterQuestion question;
 
     //全部考核轮
     @Transient
@@ -49,4 +52,6 @@ public class ExamCycle {
             public
     Set<Student>studentSet;
 
+    @Column()
+    public Boolean doneExamCycle;
 }

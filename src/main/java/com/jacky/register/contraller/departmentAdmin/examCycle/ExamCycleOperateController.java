@@ -150,4 +150,14 @@ public class ExamCycleOperateController {
                 Info.of(department.name,"DepartmentName"));
         return Result.okResult(newExam.id);
     }
+
+    @PostMapping("/examCycle/close")
+    public Result<?>closeExamCycle(
+            @RequestParam("id")long examCycleId
+    ){
+        var department=departmentServer.getFirstDepartment();
+        var examCycle=operationService.closeExamCycle(examCycleId,department);
+
+        return Result.okResult(examCycle.id);
+    }
 }

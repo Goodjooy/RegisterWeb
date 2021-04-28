@@ -18,6 +18,9 @@ public class Administer implements Serializable {
     @Column(nullable = false,length = 32)
             public
     String email;
+    @Column(length = 11)
+    public String studentId;
+    @Column(length = 64)
     public String password;
 
     @ManyToOne(targetEntity = GroupDepartment.class, fetch = FetchType.EAGER)

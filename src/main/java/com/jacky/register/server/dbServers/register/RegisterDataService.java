@@ -141,7 +141,7 @@ public class RegisterDataService {
 
                     info.status = registerDatabaseService.getStudentExamStatues(examId, student.id);
 
-                    info.examWorks = registerDatabaseService.getStudentExamWorks(examId, student.id);
+                    info.examWorks = registerDatabaseService.getStudentExamWorksName(examId, student.id);
 
                     return info;
                 }).collect(Collectors.toList());
@@ -149,7 +149,7 @@ public class RegisterDataService {
 
     public Resource getStudentWork(Integer stuId, long examId) {
         var result = registerDatabaseService.findStudentById(stuId);
-        var stuWorks = registerDatabaseService.getStudentExamWorks(examId, result.id);
+        var stuWorks = registerDatabaseService.getStudentExamWorksName(examId, result.id);
 
         return worksFileStorageService.loadAsResource(stuWorks);
     }

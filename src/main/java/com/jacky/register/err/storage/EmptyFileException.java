@@ -3,7 +3,7 @@ package com.jacky.register.err.storage;
 import com.jacky.register.err.BaseException;
 
 public class EmptyFileException extends BaseException {
-    private static final int errorCode=205;
+    private static final int errorCode=206;
 
     public EmptyFileException(String fileName){
         super(errorCode,

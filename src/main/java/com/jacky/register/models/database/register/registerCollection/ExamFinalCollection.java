@@ -10,26 +10,37 @@ import javax.persistence.*;
 public class ExamFinalCollection {
     @Id
     @GeneratedValue
-            public
+    public
     Long id;
 
     //学生id；
-    @Column(nullable = false,unique = true,length = 20)
-            public
+    @Column(nullable = false, unique = true, length = 20)
+    public
     Integer studentID;
     @Transient
     Student student;
 
     //考核轮ID
     @Column(nullable = false)
-            public
+    public
     Long examID;
     @Transient
     Exam exam;
 
     //考核提交文件路径
-    @Column(nullable = false,length = 128)
-            public
+    @Column(nullable = false, length = 128)
+    public
     String examFile;
+
+    static public ExamFinalCollection nullWorks(Integer student, Long exam) {
+        var result = new ExamFinalCollection();
+
+        result.examFile = null;
+        result.studentID = student;
+        result.examID = exam;
+        result.id = -1L;
+
+        return result;
+    }
 
 }

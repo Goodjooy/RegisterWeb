@@ -49,6 +49,10 @@ public class RegisterCollectionService {
     public Student registerStudent(QuestionCollectionData collection, Long examCycleId) {
         var examCycle = registerDatabaseService
                 .findExamCycleByIdAndDepartment(examCycleId, GroupDepartment.lambadaDepartment());
+        RegisterOperationService.checkExamCycle(examCycle);
+        //todo exam cycle register closed ,return
+
+
         var linker = registerDatabaseService.findRegisterQuestionById(examCycle.registerQuestionID);
 
         collection.QuestionID=linker.questionID;

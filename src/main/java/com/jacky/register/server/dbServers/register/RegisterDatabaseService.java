@@ -11,6 +11,7 @@ import com.jacky.register.models.database.Term.repository.ExamRepository;
 import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.register.RegisterQuestion;
 import com.jacky.register.models.database.register.Student;
+import com.jacky.register.models.database.register.registerCollection.ExamFinalCollection;
 import com.jacky.register.models.database.register.registerCollection.StudentExamCycleLink;
 import com.jacky.register.models.database.register.registerCollection.StudentExamLink;
 import com.jacky.register.models.database.register.repository.*;
@@ -46,6 +47,7 @@ public class RegisterDatabaseService {
         var examCycle = getExamCycle(id, department);
         examCycle.examList = findExamByExamCycleId(id);
         examCycle.studentSet = findStudentInExamCycle(id);
+        examCycle.question=findRegisterQuestionById(examCycle.registerQuestionID);
         return examCycle;
     }
 
@@ -71,6 +73,7 @@ public class RegisterDatabaseService {
     public Set<StudentExamLink> findExamLinkByStudentId(int id) {
         return examLinkRepository.findByStudentID(id);
     }
+
 
     public ExamCycleStatus getStudentExamCycleStatus(Student student, long examCycleId) {
         return findStudentExamCycleLinkByStudentAndExamCycleID(student, examCycleId).status;
@@ -112,11 +115,14 @@ public class RegisterDatabaseService {
         return searchStudentWithKeyword(students, keyword);
     }
 
-    public String getStudentExamWorks(Long examId, Integer studentID) {
+    public String getStudentExamWorksName(Long examId, Integer studentID) {
+        return getStudentExamWorks(examId,studentID).examFile;
+    }
+    public ExamFinalCollection getStudentExamWorks(Long examId, Integer studentID) {
         var result = examFinalCollectionRepository.findByStudentIDAndExamID(studentID, examId);
         if (result.isEmpty())
-            return null;
-        return result.get().examFile;
+            return ExamFinalCollection.nullWorks(studentID,examId);
+        return result.get();
     }
 
     public ExamStatus getStudentExamStatues(Long examId, Integer stuId) {
@@ -167,9 +173,7 @@ public class RegisterDatabaseService {
         return students.stream()
                 .filter(
                         student -> student.name.contains(keyword) ||
-                                student.email.contains(keyword) ||
-                                student.stuID.contains(keyword) ||
-                                student.qqID.contains(keyword)
+                                student.stuID.contains(keyword)
                 )
                 .collect(Collectors.toSet());
     }
@@ -184,6 +188,7 @@ public class RegisterDatabaseService {
     public void studentConfirm(Integer stuId, Long examId) {
         var exam = getExam(examId, GroupDepartment.lambadaDepartment());
         var examCycle = findExamCycleByIdAndDepartment(exam.examCycleID, GroupDepartment.lambadaDepartment());
+        RegisterOperationService.checkExamCycle(examCycle);
         var students =
                 findStudentInExamCycle(exam.examCycleID).stream().map(student -> student.id)
                         .collect(Collectors.toSet());
@@ -282,10 +287,12 @@ public class RegisterDatabaseService {
 
     public StudentExamCycleLink findStudentExamCycleLinkByStudentAndExamCycleID(int student, long examCycleId) {
         var result = examCycleLinkRepository
-                .findByExamCycleIDAndStudentId(examCycleId, student);
+                .findByExamCycleIdAndStudentID(examCycleId, student);
         if (result.isEmpty())
             throw new StudentNotFoundException(student);
 
         return result.get();
     }
+
+
 }

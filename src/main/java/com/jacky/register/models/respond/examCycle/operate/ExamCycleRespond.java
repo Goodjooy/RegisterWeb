@@ -9,6 +9,8 @@ public class ExamCycleRespond implements Serializable {
     public Integer departmentId;
     public String departName;
 
+    public Boolean availableRegister;
+    // TODO: 2021/4/26 is done?
 
     public String name;
 

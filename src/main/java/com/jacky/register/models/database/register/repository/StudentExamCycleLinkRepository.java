@@ -8,5 +8,10 @@ import java.util.Optional;
 
 public interface StudentExamCycleLinkRepository extends JpaRepository<StudentExamCycleLink ,Long> {
     List<StudentExamCycleLink> findByExamCycleId(long id);
-    Optional<StudentExamCycleLink>findByExamCycleIDAndStudentId(long id,int stuId);
+    Optional<StudentExamCycleLink> findByExamCycleIdAndStudentID(long id, int stuId);
+
+    void deleteByExamCycleId(long id);
+    void deleteByExamCycleIdAndStudentID(long id, int stuId);
+
+    long countByStudentID(int id);
 }

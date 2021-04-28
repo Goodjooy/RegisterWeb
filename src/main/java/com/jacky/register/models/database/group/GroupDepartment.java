@@ -27,10 +27,10 @@ public class GroupDepartment implements Serializable {
     @ManyToMany(mappedBy = "underGroup")
     public Set<Student> members;
 
-    @OneToMany(targetEntity = Administer.class,mappedBy = "groupIn")
+    @OneToMany(targetEntity = Administer.class,mappedBy = "groupIn",fetch = FetchType.EAGER)
     public Set<Administer>administers;
 
-    @OneToMany(targetEntity = Questionable.class)
+    @OneToMany(targetEntity = Questionable.class,fetch = FetchType.EAGER)
     public
     Set<Questionable>questions;
 

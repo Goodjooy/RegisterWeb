@@ -35,7 +35,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation('commons-io:commons-io:2.8.0')
-	implementation('org.owasp.esapi:esapi:2.2.2.0')
+	implementation('org.owasp.esapi:esapi:2.1.0.1')
 	implementation('org.jsoup:jsoup:1.13.1')
 	implementation 'org.jetbrains:annotations:20.1.0'
 	implementation 'junit:junit:4.12'

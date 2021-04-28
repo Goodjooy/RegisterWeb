@@ -13,4 +13,7 @@ public interface ExamCycleRepository extends JpaRepository<ExamCycle,Long> {
 
     Optional<ExamCycle>findByIdAndDepartmentID(Long id,Integer departmentId);
     List<ExamCycle> findByDepartmentID(Integer departmentId);
+
+    void deleteByIdAndDepartmentID(Long id,Integer departmentId);
+
 }

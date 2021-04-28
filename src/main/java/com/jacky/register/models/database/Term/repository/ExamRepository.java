@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface ExamRepository extends JpaRepository<Exam,Long> {
 
-    public void deleteAllByExamCycleID(Long id);
+     void deleteAllByExamCycleID(Long id);
     List<Exam>findAllByExamCycleID(Long id);
 }

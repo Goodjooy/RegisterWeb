@@ -38,6 +38,8 @@ public class RegisterRespondTransformService {
         examCycleRespond.departmentId=examCycle.departmentID;
         examCycleRespond.departName=departmentServer.getDepartmentByID(examCycle.departmentID).name;
 
+        examCycleRespond.availableRegister=examCycle.question.available;
+
         examCycleRespond.register=getRegister(examCycle.registerQuestionID);
         examCycleRespond.exams=examCycle.examList.stream().map(this::toRespond).collect(Collectors.toList());
         examCycleRespond.students=examCycle.studentSet.stream().map(this::toRespond).collect(Collectors.toList());
