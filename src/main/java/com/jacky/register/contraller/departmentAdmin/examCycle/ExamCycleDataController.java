@@ -10,6 +10,7 @@ import com.jacky.register.models.status.ExamStatus;
 import com.jacky.register.server.dbServers.DepartmentServer;
 import com.jacky.register.server.dbServers.register.RegisterDataService;
 import com.jacky.register.server.dbServers.register.RegisterDatabaseService;
+import com.jacky.register.server.dbServers.register.RegisterOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +33,8 @@ public class ExamCycleDataController {
     RegisterDatabaseService databaseService;
     @Autowired
     DepartmentServer departmentServer;
+    @Autowired
+    RegisterOperationService operationService;
 
     @GetMapping("/examCycle/all")
     public Result<List<ExamCycleInfo>> getAllBasicExamCycleInfo() {
@@ -87,6 +90,16 @@ public class ExamCycleDataController {
         return Result.okResult(students);
     }
 
+    @DeleteMapping("/examCycle/student")
+    public Result<Integer>removeStudentInExamCycle(
+            @RequestParam("id")Long examCycleId,
+            @RequestParam("studentId")Integer studentId
+    ){
+        var stu=operationService.removeExamCycleStudent(studentId,examCycleId);
+        return Result.okResult(stu);
+    }
+
+
     @GetMapping("/exam/student/all")
     public Result<List<ExamStudentInfo>> getAllStudentInExam(
             @RequestParam("examId") Long examId
@@ -122,6 +135,14 @@ public class ExamCycleDataController {
         }
         return Result.okResult(students);
     }
+    @DeleteMapping("/exam/student")
+    public Result<?>removeStudentInExam(
+            @RequestParam("id")Long examId,
+            @RequestParam("studentId")Integer studentId
+    ){
+        var stu=operationService.removeExamStudentWithBefore(studentId,examId);
+        return Result.okResult(stu);
+    }
 
     @GetMapping("/exam/student/works")
     public ResponseEntity<Resource> getStudentWork(
@@ -154,7 +175,7 @@ public class ExamCycleDataController {
     public Result<ExamCycleStatus>setStudentExamCycleStatus(
             @RequestParam("id") Integer stuId,
             @RequestParam("examCycleId") Long examCycleId,
-            @RequestParam(value = "isPass", defaultValue = "ture") Boolean isPass
+            @RequestParam(value = "isPass", defaultValue = "true") Boolean isPass
     ){
         ExamCycleStatus status;
         if(isPass)

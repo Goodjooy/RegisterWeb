@@ -5,6 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.jacky.register.err.register.notFound.ExamCycleNotFoundException;
 import com.jacky.register.err.register.requireNotSatisfy.HandOnWorksOverTimeException;
 import com.jacky.register.err.register.requireNotSatisfy.TokenTransformFailureException;
+import com.jacky.register.models.request.register.student.StudentData;
+import com.jacky.register.models.request.register.student.StudentUpdate;
 import com.jacky.register.models.status.ExamStatus;
 import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.quetionail.QuestionRepository;
@@ -45,6 +47,28 @@ public class RegisterCollectionService {
 
     @Autowired
     QuestionCollectionServer questionCollectionServer;
+    public Student createStudent(StudentData data){
+        Student student=new Student();
+        student.qqID=data.qqId;
+        student.stuID=data.studentId;
+        student.phone=data.phone;
+        student.email= data.email;
+        student.name=data.name;
+
+        return registerDatabaseService.checkStudentExist(student);
+
+    }
+    public Student updateStudentInfo(StudentData data,Integer studentId){
+        var student=registerDatabaseService.findStudentById(studentId);
+
+        student.qqID=data.qqId;
+        student.stuID=data.studentId;
+        student.phone=data.phone;
+        student.email= data.email;
+        student.name=data.name;
+
+        return registerDatabaseService.studentRepository.save(student);
+    }
 
     public Student registerStudent(QuestionCollectionData collection, Long examCycleId) {
         var examCycle = registerDatabaseService
@@ -79,7 +103,7 @@ public class RegisterCollectionService {
             student.qqID = dataHashMap.get(linker.qqItemID).data;
         if (dataHashMap.containsKey(linker.phoneItemID))
             student.phone = dataHashMap.get(linker.phoneItemID).data;
-        questionCollectionServer.sendQuestionCollect(collect);
+        //questionCollectionServer.sendQuestionCollect(collect);
 
 
         return registerDatabaseService.newStudent(student, examCycle.id);

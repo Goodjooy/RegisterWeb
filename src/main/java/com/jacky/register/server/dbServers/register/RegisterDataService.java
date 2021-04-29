@@ -1,5 +1,6 @@
 package com.jacky.register.server.dbServers.register;
 
+import com.jacky.register.models.database.Term.ExamCycle;
 import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.register.Student;
 import com.jacky.register.models.database.register.registerCollection.StudentExamLink;
@@ -30,16 +31,19 @@ public class RegisterDataService {
 
     //information get
     public List<ExamCycleInfo> getAllExamCycle(GroupDepartment department) {
-        var examCycle = registerDatabaseService
-                .examCycleRepository.findByDepartmentID(department.ID);
-
+        List<ExamCycle> examCycle;
+        if (department.ID != -1)
+            examCycle = registerDatabaseService
+                    .examCycleRepository.findByDepartmentID(department.ID);
+        else
+            examCycle = registerDatabaseService.examCycleRepository.findAll();
         return examCycle
                 .stream().map(examCycle1 -> {
                     ExamCycleInfo info = new ExamCycleInfo();
 
                     info.examCycleId = examCycle1.id;
                     info.examCycleName = examCycle1.name;
-                    info.departmentId = department.ID;
+                    info.departmentId = examCycle1.departmentID;
 
                     return info;
                 })
@@ -176,12 +180,12 @@ public class RegisterDataService {
         return ExamStatus.FAILURE;
     }
 
-    public ExamCycleStatus setStudentExamCycleStatus(int studentId,long examCycleId,ExamCycleStatus status){
-        var student=registerDatabaseService.findStudentExamCycleLinkByStudentAndExamCycleID(
+    public ExamCycleStatus setStudentExamCycleStatus(int studentId, long examCycleId, ExamCycleStatus status) {
+        var student = registerDatabaseService.findStudentExamCycleLinkByStudentAndExamCycleID(
                 studentId,
                 examCycleId
         );
-        student.status=status;
+        student.status = status;
         registerDatabaseService.examCycleLinkRepository.save(student);
         return status;
 

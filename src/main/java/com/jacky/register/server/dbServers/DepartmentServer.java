@@ -49,10 +49,14 @@ public class DepartmentServer {
                 .getPrincipal();
 
         Optional<GroupDepartment> result;
-        if (userDetails.getModel() instanceof SuperAdmin && userDetails.getDepartmentId() != -1) {
-            result = departmentRepository.findById(userDetails.getDepartmentId());
-            if (result.isPresent()) {
-                return result.get();
+        if (userDetails.getModel() instanceof SuperAdmin) {
+            if (userDetails.getDepartmentId() != -1) {
+                result = departmentRepository.findById(userDetails.getDepartmentId());
+                if (result.isPresent()) {
+                    return result.get();
+                }
+            } else {
+                return GroupDepartment.lambadaDepartment();
             }
         } else if (userDetails.getModel() instanceof Administer) {
             //不是超级管理员
@@ -62,17 +66,17 @@ public class DepartmentServer {
         throw new DepartmentNotFoundException(userDetails.getDepartmentId());
     }
 
-    public DepartmentInformation toRespond(GroupDepartment department){
-        DepartmentInformation information=new DepartmentInformation();
+    public DepartmentInformation toRespond(GroupDepartment department) {
+        DepartmentInformation information = new DepartmentInformation();
 
-        information.information=department.information;
-        information.name= department.name;
+        information.information = department.information;
+        information.name = department.name;
 
-        information.admins=department.administers.stream().map(
+        information.admins = department.administers.stream().map(
                 administer -> {
-                    AdminInformation information1=new AdminInformation();
-                    information1.email=administer.email;
-                    information1.name= administer.name;
+                    AdminInformation information1 = new AdminInformation();
+                    information1.email = administer.email;
+                    information1.name = administer.name;
 
                     return information1;
                 }
@@ -81,28 +85,29 @@ public class DepartmentServer {
         return information;
     }
 
-    public GroupDepartment newDepartment(DepartmentCreate create){
-        GroupDepartment department=new GroupDepartment();
+    public GroupDepartment newDepartment(DepartmentCreate create) {
+        GroupDepartment department = new GroupDepartment();
 
-        department.name= create.name;
-        department.information= create.info;
+        department.name = create.name;
+        department.information = create.info;
 
         return departmentRepository.save(department);
 
     }
-    public GroupDepartment resetDepartmentInformation(GroupDepartment department,String information){
-        department.information=information;
+
+    public GroupDepartment resetDepartmentInformation(GroupDepartment department, String information) {
+        department.information = information;
 
         return departmentRepository.save(department);
     }
 
-    public GroupDepartment resetDepartmentName(GroupDepartment department,String name){
-        department.name=name;
+    public GroupDepartment resetDepartmentName(GroupDepartment department, String name) {
+        department.name = name;
         return departmentRepository.save(department);
     }
 
-    public Administer addAdminToDepartment(AdminCreate adminCreate){
-        var department=getDepartmentByID(adminCreate.targetDepartmentId);
+    public Administer addAdminToDepartment(AdminCreate adminCreate) {
+        var department = getDepartmentByID(adminCreate.targetDepartmentId);
 
         return adminService.newAdminister(adminCreate.data, department);
     }

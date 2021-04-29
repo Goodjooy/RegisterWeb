@@ -89,6 +89,7 @@ public interface StorageService<Model> {
         }
     }
     static void delete(String path,Path savePath) {
+        if(path==null)return;
         File file = savePath.resolve(path).toFile();
 
         FileSystemUtils.deleteRecursively(file);

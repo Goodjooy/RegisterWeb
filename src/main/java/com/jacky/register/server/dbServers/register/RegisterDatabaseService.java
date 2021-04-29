@@ -150,13 +150,7 @@ public class RegisterDatabaseService {
 
     public Student newStatusStudent(Student student, Long examCycleId, ExamCycleStatus status) {
         //check student exist;
-        var result = studentRepository
-                .findByNameAndStuIDAndEmail(student.name, student.stuID, student.email);
-        if (result.isEmpty())
-            student = studentRepository.save(student);
-        else {
-            student = result.get();
-        }
+        student=checkStudentExist(student);
         //examCycle - student Linker
         StudentExamCycleLink examCycleLink = new StudentExamCycleLink();
 
@@ -166,6 +160,16 @@ public class RegisterDatabaseService {
 
         examCycleLinkRepository.save(examCycleLink);
 
+        return student;
+    }
+    public Student checkStudentExist(Student student){
+        var result = studentRepository
+                .findByNameAndStuIDAndEmail(student.name, student.stuID, student.email);
+        if (result.isEmpty())
+            student = studentRepository.save(student);
+        else {
+            student = result.get();
+        }
         return student;
     }
 

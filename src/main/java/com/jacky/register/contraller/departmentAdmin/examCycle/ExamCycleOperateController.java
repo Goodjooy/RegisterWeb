@@ -89,19 +89,21 @@ public class ExamCycleOperateController {
     }
 
     @DeleteMapping("/examCycle")
-    // TODO: 2021/4/17 考核周期删除
-    @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "模块未完成")
     public Result<?> deleteExamCycle(
             @RequestParam("id") Long id
     ) {
         var department = departmentServer.getFirstDepartment();
-        return null;
+        operationService.removeExamCycle(department,id);
+
+        // TODO: 2021/4/29 logger cover
+        return Result.okResult(true);
     }
 
     @PostMapping("/examCycle/available")
     public Result<Boolean>reventExamCycleRegisterStatus(@RequestParam("id") Long id){
         var status=operationService.changeExamCycleRegisterStatus(departmentServer.getFirstDepartment(),id);
 
+        // TODO: 2021/4/29 logger cover
         return Result.okResult(status);
     }
 
@@ -149,6 +151,16 @@ public class ExamCycleOperateController {
                 Info.of(newExam.id,"NewExamID"),
                 Info.of(department.name,"DepartmentName"));
         return Result.okResult(newExam.id);
+    }
+    @DeleteMapping("/exam")
+    public Result<?>removeExam(
+            @RequestParam("id")Long examId
+    ){
+        var department=departmentServer.getFirstDepartment();
+        var exam=databaseService.getExam(examId,department);
+
+        exam=operationService.removeExam(exam);
+        return Result.okResult(exam.id);
     }
 
     @PostMapping("/examCycle/close")

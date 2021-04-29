@@ -34,4 +34,14 @@ public class AdminService {
 
         return administer;
     }
+
+    public void removeAdminister(int id){
+        var result=adminRepository.findById(id);
+        if(result.isPresent()){
+
+        }
+        // TODO: 2021/4/29 admin remove
+    }
+    // TODO: 2021/4/29 find back password
+
 }

@@ -24,7 +24,7 @@ public class Administer implements Serializable {
     public String password;
 
     @ManyToOne(targetEntity = GroupDepartment.class, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+    @JoinColumn(nullable = false,foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
             public
     GroupDepartment groupIn;
 }

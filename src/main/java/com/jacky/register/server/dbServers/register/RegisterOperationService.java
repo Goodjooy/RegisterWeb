@@ -2,6 +2,7 @@ package com.jacky.register.server.dbServers.register;
 
 import com.jacky.register.err.register.notFound.ExamCycleNotFoundException;
 import com.jacky.register.err.register.notFound.RegisterQuestionNotFoundException;
+import com.jacky.register.err.register.notFound.StudentNotFoundException;
 import com.jacky.register.err.register.requireNotSatisfy.ExamCycleClosedException;
 import com.jacky.register.models.database.Term.Exam;
 import com.jacky.register.models.database.Term.ExamCycle;
@@ -19,8 +20,10 @@ import com.jacky.register.server.localFiles.ExamRequireFileStorageService;
 import com.jacky.register.server.localFiles.ExamWorksFileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
  * 管理员注册信息操作
  */
 @Service
+@Transactional
 public class RegisterOperationService {
     @Autowired
     RegisterQuestionRepository registerQuestionRepository;
@@ -96,30 +100,33 @@ public class RegisterOperationService {
 
 
     public void removeExamCycle(GroupDepartment department, Long id) {
-        var result = examCycleRepository.findByIdAndDepartmentID(id, department.ID);
+        var result =
+                department.ID == -1 ? examCycleRepository.findById(id) :
+                        examCycleRepository.findByIdAndDepartmentID(id, department.ID);
         if (result.isEmpty())
             throw new ExamCycleNotFoundException(id, department);
         var examCycle = result.get();
         // TODO: 2021/4/17 完全删除考核周期
         //删除考核周期的考核轮
-        var exams=databaseService.findExamByExamCycleId(examCycle.id)
+        var exams = databaseService.findExamByExamCycleId(examCycle.id)
                 .stream()
                 .map(this::removeExam)
                 .collect(Collectors.toList());
 
         //删除本考核轮的学生
-        var students=databaseService.findStudentInExamCycle(examCycle.id)
+        var students = databaseService.findStudentInExamCycle(examCycle.id)
                 .stream()
-                .map(student -> removeExamCycleStudent(student,examCycle))
+                .map(student -> removeExamCycleStudent(student, examCycle))
                 .collect(Collectors.toList());
 
         //删除考核周期
-        examCycleRepository.deleteByIdAndDepartmentID(id,department.ID);
+        examCycleRepository.delete(examCycle);
     }
 
     public boolean changeExamCycleRegisterStatus(GroupDepartment department, long id) {
         var cycle = getExamCycle(id, department);
-        var result = registerQuestionRepository.findById(cycle.registerQuestionID);
+        var result = registerQuestionRepository
+                .findById(cycle.registerQuestionID);
         if (result.isEmpty())
             throw new RegisterQuestionNotFoundException(cycle.registerQuestionID);
 
@@ -185,33 +192,64 @@ public class RegisterOperationService {
         examRepository.delete(exam);
         return exam;
     }
+    public Student removeExamStudentWithBefore(Integer studentId, Long examID){
+        var studentInfo=databaseService.findStudentById(studentId);
+        var exam=databaseService.getExam(examID,GroupDepartment.lambadaDepartment());
+        return removeExamStudentWithBefore(studentInfo,exam);
+    }
+    public Student removeExamStudentWithBefore(Student student, Exam exam) {
+        var students = databaseService.findExamByExamCycleId(exam.examCycleID)
+                .stream()
+                .filter(exam1 -> exam1.id >= exam.id)
+                .map(exam1 -> removeExamStudent(student, exam1))
+                .distinct()
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        return students.size() > 0 ? students.get(0) : student;
+    }
 
     public Student removeExamStudent(Student student, Exam exam) {
-        var linker = databaseService.getExamLinkByStudentIdAndExamId(student.id, exam.id);
-
-        //删除提交的作品
-        if (linker.status != ExamStatus.REGISTER && linker.status != ExamStatus.ADMIN_SET) {
-            var file = databaseService.getStudentExamWorks(exam.id, student.id);
-            examWorksFileStorageService.delete(file);
-        }
-        //删除连接
-        databaseService.examLinkRepository.deleteByStudentIDAndExamId(student.id, exam.id);
-        //移除考核周期的学生不会移除学生本身
+        removeExamStudent(student.id, exam.id);
 
         return student;
     }
-    public Student removeExamCycleStudent(Student student,ExamCycle examCycle){
+
+    public Integer removeExamStudent(Integer student,
+                                     Long exam) {
+        try {
+
+            var linker = databaseService.getExamLinkByStudentIdAndExamId(student, exam);
+            //删除提交的作品
+            if (linker.status != ExamStatus.REGISTER && linker.status != ExamStatus.ADMIN_SET) {
+                var file = databaseService.getStudentExamWorks(exam, student);
+                examWorksFileStorageService.delete(file);
+            }
+            //删除连接
+            databaseService.examLinkRepository.deleteByStudentIDAndExamId(student, exam);
+            //移除考核周期的学生不会移除学生本身
+        }catch (StudentNotFoundException ignored){
+        }
+        return student;
+    }
+
+    public Integer removeExamCycleStudent(Integer student, Long examCycle) {
         //删除全部考核周期学生
-        var exams=databaseService.findExamByExamCycleId(examCycle.id)
+        var exams = databaseService.findExamByExamCycleId(examCycle)
                 .stream()
-                .map(exam -> removeExamStudent(student,exam))
+                .map(exam -> removeExamStudent(student, exam.id))
                 .collect(Collectors.toList());
 
-        databaseService.examCycleLinkRepository.deleteByExamCycleIdAndStudentID(examCycle.id, student.id);
+        databaseService.examCycleLinkRepository.deleteByExamCycleIdAndStudentID(examCycle, student);
 
         //检查学生是否没有参与任何考核周期了
-        if(databaseService.examCycleLinkRepository.countByStudentID(student.id)==0)
-            databaseService.studentRepository.delete(student);
+        if (databaseService.examCycleLinkRepository.countByStudentID(student) == 0)
+            databaseService.studentRepository.deleteById(student);
+
+        return student;
+    }
+
+    public Student removeExamCycleStudent(Student student, ExamCycle examCycle) {
+        removeExamCycleStudent(student.id, examCycle.id);
 
         return student;
     }
@@ -270,7 +308,7 @@ public class RegisterOperationService {
     }
 
     static void checkExamCycle(ExamCycle cycle) {
-        if (cycle.doneExamCycle)
+        if (cycle.doneExamCycle != null && cycle.doneExamCycle)
             throw new ExamCycleClosedException(cycle.id);
     }
 }
