@@ -12,11 +12,14 @@ import com.jacky.register.models.request.user.AdminCreate;
 import com.jacky.register.models.respond.department.AdminInformation;
 import com.jacky.register.models.respond.department.DepartmentInformation;
 import com.jacky.register.security.DatabaseEntityUserDetails;
+import com.jacky.register.server.dbServers.register.RegisterDataService;
+import com.jacky.register.server.dbServers.register.RegisterOperationService;
 import com.jacky.register.server.dbServers.user.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,7 +31,14 @@ public class DepartmentServer {
     AdminService adminService;
     @Autowired
     AdminRepository adminRepository;
+    @Autowired
+    RegisterOperationService registerOperationService;
+    @Autowired
+    RegisterDataService registerDataService;
 
+    public List<GroupDepartment> getAllDepartment(){
+        return departmentRepository.findAll();
+    }
     public GroupDepartment getDepartmentByID(Integer id) {
         var result = departmentRepository.findById(id);
         if (result.isPresent()) {
@@ -112,4 +122,18 @@ public class DepartmentServer {
         return adminService.newAdminister(adminCreate.data, department);
     }
 
+    public void removeDepartment(GroupDepartment department) {
+        if (department.ID != -1) {
+            //删除考核周期
+            var examCycles = registerDataService.getAllExamCycle(department)
+                    .stream()
+                    .peek(examCycleInfo -> registerOperationService.removeExamCycle(department, examCycleInfo.examCycleId))
+                    .collect(Collectors.toList());
+
+            var admins = department.administers
+                    .stream()
+                    .peek(administer -> adminRepository.delete(administer))
+                    .collect(Collectors.toList());
+        }
+    }
 }

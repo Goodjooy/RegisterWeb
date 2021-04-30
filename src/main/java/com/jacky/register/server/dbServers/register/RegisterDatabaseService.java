@@ -213,7 +213,7 @@ public class RegisterDatabaseService {
         }
     }
 
-    Student findStudentById(Integer id) {
+    public Student findStudentById(Integer id) {
         var result = studentRepository.findById(id);
         if (result.isEmpty())
             throw new StudentNotFoundException(id);
