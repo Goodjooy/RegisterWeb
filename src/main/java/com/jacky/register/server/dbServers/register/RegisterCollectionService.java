@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.jacky.register.err.register.notFound.ExamCycleNotFoundException;
 import com.jacky.register.err.register.requireNotSatisfy.HandOnWorksOverTimeException;
 import com.jacky.register.err.register.requireNotSatisfy.TokenTransformFailureException;
+import com.jacky.register.models.database.Term.Exam;
 import com.jacky.register.models.request.register.student.StudentData;
 import com.jacky.register.models.request.register.student.StudentUpdate;
 import com.jacky.register.models.status.ExamStatus;

@@ -1,6 +1,8 @@
 package com.jacky.register.contraller.departmentAdmin.examCycle;
 
+import com.jacky.register.dataHandle.LoggerHandle;
 import com.jacky.register.dataHandle.Result;
+import com.jacky.register.err.BaseException;
 import com.jacky.register.models.respond.examCycle.data.ExamCycleInfo;
 import com.jacky.register.models.respond.examCycle.data.ExamCycleStudentInfo;
 import com.jacky.register.models.respond.examCycle.data.ExamInfo;
@@ -14,9 +16,11 @@ import com.jacky.register.server.dbServers.register.RegisterOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +39,8 @@ public class ExamCycleDataController {
     DepartmentServer departmentServer;
     @Autowired
     RegisterOperationService operationService;
+
+    LoggerHandle logger = LoggerHandle.newLogger(ExamCycleDataController.class);
 
     @GetMapping("/examCycle/all")
     public Result<List<ExamCycleInfo>> getAllBasicExamCycleInfo() {
@@ -159,7 +165,7 @@ public class ExamCycleDataController {
     public Result<ExamStatus> setStudentExamStatus(
             @RequestParam("id") Integer stuId,
             @RequestParam("examId") Long examId,
-            @RequestParam(value = "isPass", defaultValue = "ture") Boolean isPass
+            @RequestParam(value = "isPass", defaultValue = "true") Boolean isPass
     ) {
 
         ExamStatus status;
@@ -197,5 +203,10 @@ public class ExamCycleDataController {
 
         return Result.okResult(true);
     }
-
+    @ExceptionHandler({BaseException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<?> handleNotSelectTypeItem(BaseException exception, HttpServletRequest request) {
+        logger.error(request, exception);
+        return exception.toResult();
+    }
 }

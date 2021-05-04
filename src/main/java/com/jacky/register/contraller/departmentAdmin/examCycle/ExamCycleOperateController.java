@@ -3,6 +3,7 @@ package com.jacky.register.contraller.departmentAdmin.examCycle;
 import com.jacky.register.dataHandle.Info;
 import com.jacky.register.dataHandle.LoggerHandle;
 import com.jacky.register.dataHandle.Result;
+import com.jacky.register.err.BaseException;
 import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.request.register.examCycle.CreateExam;
 import com.jacky.register.models.request.register.examCycle.CreateExamCycle;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -171,5 +173,12 @@ public class ExamCycleOperateController {
         var examCycle=operationService.closeExamCycle(examCycleId,department);
 
         return Result.okResult(examCycle.id);
+    }
+
+    @ExceptionHandler({BaseException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<?> handleNotSelectTypeItem(BaseException exception, HttpServletRequest request) {
+        logger.error(request, exception);
+        return exception.toResult();
     }
 }

@@ -1,16 +1,18 @@
 package com.jacky.register.contraller.departmentAdmin.examCycle;
 
+import com.jacky.register.dataHandle.LoggerHandle;
 import com.jacky.register.dataHandle.Result;
+import com.jacky.register.err.BaseException;
 import com.jacky.register.err.register.notFound.StudentNotFoundException;
 import com.jacky.register.server.EmailSenderService;
 import com.jacky.register.server.dbServers.DepartmentServer;
 import com.jacky.register.server.dbServers.register.RegisterCollectionService;
 import com.jacky.register.server.dbServers.register.RegisterDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/register/info-sender")
@@ -25,6 +27,8 @@ public class ExamEmailController {
     @Autowired
     DepartmentServer departmentServer;
 
+    LoggerHandle logger =LoggerHandle.newLogger(ExceptionHandler.class);
+
     @PostMapping("/confirm")
     public Result<?>sendConfirmMessage(
             @RequestParam("examId")Long id,
@@ -33,7 +37,7 @@ public class ExamEmailController {
         var department=departmentServer.getFirstDepartment();
         var exam=databaseService.getExam(id,department);
         var examCycle=databaseService.findExamCycleByIdAndDepartment(exam.examCycleID,department);
-        var student=exam.termStudents
+        var student=examCycle.studentSet
                 .stream().filter(student1 -> student1.id.equals(studentId))
                 .findFirst();
 
@@ -57,5 +61,10 @@ public class ExamEmailController {
         return Result.okResult(true);
     }
 
-
+    @ExceptionHandler({BaseException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<?> handleNotSelectTypeItem(BaseException exception, HttpServletRequest request) {
+        logger.error(request, exception);
+        return exception.toResult();
+    }
 }

@@ -7,9 +7,12 @@ import com.jacky.register.models.respond.department.DepartmentInformation;
 import com.jacky.register.server.dbServers.DepartmentServer;
 import com.jacky.register.server.dbServers.user.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.stream.Stream;
 
 //超级管理员控制部门的额外类
@@ -54,7 +57,7 @@ public class DepartmentController {
         return Result.okResult(department.ID);
     }
 
-    @PostMapping("/department")
+    @DeleteMapping("/department")
     @PreAuthorize("hasRole('ROLE_SUPER')")
     public Result<Integer> removeDepartment(
             @RequestParam("id") Integer id
@@ -104,5 +107,15 @@ public class DepartmentController {
         department = departmentServer.resetDepartmentName(department, name);
 
         return Result.okResult(department.ID);
+    }
+
+    @PostMapping("/switch")
+    public ResponseEntity<?> setDepartment(
+            @RequestParam("id")Integer departmentId
+    ){
+        return ResponseEntity
+                .ok()
+                .header("Set-Cookie",String.format("DPMIN_INDEX_VAL=%s; Path=/;",departmentId))
+                .build();
     }
 }

@@ -1,0 +1,115 @@
+考核周期
+1 管理员控制部分/api/examCycle/operate
+
+GET /examCycle/all 当前管理员管理部门下的全部考核周期（超级管理员为全部考核周期）【未实现】
+GET /examCycle?id={\\d+}特定考核周期的详细信息
+POST /examCycle [RequestBody: CreateExamCycle]根据给定的信息新建考核周期
+PUT /examCycle [RequestBody: UpdateExamCycle] 将指定考核周期的信息完全更新为指定信息
+DELETE /examCycle？id={\\d+}删除对应的考核周期
+POST /examCycle/available？id={\\d+} 反转指定的考核周期的报名状态
+POST /examCycle/close?id={\\d+} 结束考核周期
+
+POST /exam [RequestBody: CreateExam]根据给定的考核轮信息新建考核轮
+POST /exam/file [POST-FORM: id={\\d+}&file={MultipartFile}] 上传指定考核轮的考核要去文件
+PUT /exam [RequestBody: UpdateExam] 将指定考核轮信息完全替换为给定的信息（文件除外）
+DELETE /exam?id={\\d+} 删除给定的考核轮
+
+2数据搜集部分（学生端）/api/examCycle/collection
+
+GET /register/{id:\d+} 获取指定考核周期的报名信息
+POST /register/{id:\d+} [RequestBody: QuestionCollectionData] 学生报名指定考核周期
+
+GET /exam/confirm/{stuId:\d+}/{examId:\d+} [410 GONE] 根据给定的学生id和考核轮id生成确认参与考核的token
+POST /exam/confirm/{token:.+} 根据给定的token来确认学生参与下一轮
+
+GET /exam/requireFIle?examId={number} 获取给定的考核要求文件【未实现】
+
+POST /exam/works [POST-FORM: examId={number}&stuId={string}&stuName={string}&stuEmail={string}&file={MultipartFile}] 学生上传作品
+
+3 后台数据管理 /api/examCycle/data
+
+GET /examCycle/all 获取全部考核周期的简略信息
+GET /exam/all？id={number} 获取指定考核周期的考核轮的简略信息
+
+GET /examCycle/student/all？id={number}获取给定考核周期的全部报名学生信息
+GET /examCycle/student/{key:.+}?id={number}&page={number | -1}&pageSize={number | -1}&studentMode={ALL,REGISTER,PASS,REJECT,ADMIN_SET| ALL} 根据给定的信息筛选考核周期的学生
+DELETE /examCycle/student?id={number}&studentId={number} 删除给定学生信息
+
+GET /exam/student/all？examId={number} 获取全部当前考核轮中的学生信息
+GET /exam/student/filter/{key:.+}?id={number}&page={number | -1}&pageSize={number | -1}&studentMode={ALL,REGISTER,ASSESS,PASS,FAILURE,ADMIN_SET| ALL} 根据给定的信息筛选考核轮中信息
+DELETE /exam/student?id={number}&studentId={number} 删除给定学生信息
+
+GET /exam/student/works?id={number}&examId={number} [响应为文件] 获取学生提交的考核文件
+
+POST /exam/student/status [POST-FORM:id={number}&examId={number}&isPass={boolean |ture}]  设置给定的学生考核状态【true->pass | false-> faliure】
+POST /examCycle/student/status [POST-FORM:id={number}&examId={number}&isPass={boolean |ture}] 设置给定学生考核周期状态【true->pass | false-> reject】
+
+POST /exam/student/insert [POST-FORM:id={number}&examId={number}] 将给定的学生插入到指定的考核轮中
+
+4 邮件信息发送 /api/register/info-sender
+
+POST /confirm [POST-FORM:examId={number}&studentId={number}] 向给定学生发送确认加入某轮考核的邮件
+POST /message [POST-FORM:studentId={number}&title={string | untitled}&message={string | empty}] 向学生发送邮件，邮件标题和文本由请求传递
+
+问卷调查
+
+1问卷创建 /api/question/control
+
+GET /question?id={number} 获取指定的问卷信息
+POST /question  [POST-FORM:name={string}&information={string  | 这是一个新的问卷 } 根据给定信息创建新问卷
+
+POST /item [RequestBody: ItemCreate] 根据给定的信息创建问卷子项
+PUT  /item [RequestBody: ItemUpdate] 将指定的问卷子项信息完全更换为给定信息
+DELETE  /item?qid={number}&iid={number} 将指定问卷的指定问卷子项删除
+
+POST /select [RequestBody: ItemSelectCreate] 向指定的问卷子项中添加选项
+PUT /select [RequestBody: ItemSelectUpdate] 将指定问卷的问卷子项的指定选项完全更新为给定信息
+DELETE /select?qid={number}&iid={number}&sid={number} 删除指定问卷的问卷子项的指定选项
+
+POST /fullQuestion [RequestBody: Question] 一次性创建并发布问卷
+
+POST /public  [POST-FORM:id={number}] 发布问卷
+
+2问卷收集部分（学生端） /api/question/collection
+
+GET /{id:\d+} 获取指定问卷的结构
+POST [RequestBody: QuestionCollectionData] 提交问卷结果
+
+3 问卷后台信息 /api/question/data
+
+GET /{id:\d+} 获取指定问卷的收集表信息
+
+安全部分 /api/authentication
+
+【修改密码，找回密码等，未完成】
+
+CRSF 部分
+
+GET /api/csrf/token 获取crsf 的token （一次性使用）
+
+部门管理部分 /api/department/operation
+
+GET /department/all	 获取全部部门	
+GET /department?id={number}获取指定部门信息
+POST /department [RequestBody: DepartmentCreate] 根据给定信息新建部门
+DELETE /department？id={number} 删除指定部门
+PUT /department/information？info={string} 修改部门介绍
+PUT /department/name？name={string} 修改部门名称
+
+
+POST /admin [RequestBody: AdminCreate] 根据给定信息为指定部门添加管理员
+DELETE /admin?id={number } 删除指定管理员
+
+学生控制部分 /api/student/operation
+
+POST /student [RequestBody: StudentCreate] 新建学生（不参与任何考核周期）
+PUT  /student [RequestBody: StudentUpdate] 根据给定信息完全更新学生信息
+
+登录
+
+POST /api/auth/login  [POST-FORM:uid={string;MOD  }&paswd={string}] 将登录模式以；形式连接在登录邮箱后面，如 123456@qq.com;super 即以超级管理员模式登录，没有指定默认为普通管理员 | 用户登录
+
+ 
+
+
+
