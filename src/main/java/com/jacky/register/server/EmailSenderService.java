@@ -56,7 +56,7 @@ public class EmailSenderService {
         token.studentId = student.id;
 
         var message = String.format(
-                "%s 你好，你参与的`%s`部门开展的`%s`可以确认参与下一轮考核了\n" +
+                "%s 你好，你参与的`%s`部门开展的`%s`可以确认参与考核了\n" +
                         "请访问以下链接以进行确认：\n" +
                         "`http://%s:%s/api/examCycle/collection/exam/confirm/%s`",
                 student.name, department.name, cycle.name, address, serverPort,

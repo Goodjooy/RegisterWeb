@@ -15,12 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
-@RestController
+@Controller
 @RequestMapping("/api/examCycle/collection")
 public class ExamCycleRegisterController {
     @Autowired
@@ -36,6 +38,7 @@ public class ExamCycleRegisterController {
 
     //examCycle 报名
     @GetMapping("/register/{id:\\d+}")
+    @ResponseBody
     public Result<RegisterRespond> getRegisterInformation(
             @PathVariable("id") Long id
     ) {
@@ -52,6 +55,7 @@ public class ExamCycleRegisterController {
     }
 
     @PostMapping("/register/{id:\\d+}")
+    @ResponseBody
     public Result<String> studentRegister(
             @PathVariable("id") Long id,
             @RequestBody QuestionCollectionData collection
@@ -66,6 +70,7 @@ public class ExamCycleRegisterController {
     }
 
     @GetMapping("/exam/requireFile")
+    @ResponseBody
     public ResponseEntity<Resource> getRequireFile(
             @RequestParam("examId") Long examId
     ) {
@@ -78,6 +83,7 @@ public class ExamCycleRegisterController {
 
     @GetMapping("/exam/confirm/generate/{stuId:\\d+}/{examId:\\d+}")
     @ResponseStatus(HttpStatus.GONE)
+    @ResponseBody
     public Result<String> getToken(
             @PathVariable("stuId") Integer stuId,
             @PathVariable("examId") Long examId
@@ -91,21 +97,22 @@ public class ExamCycleRegisterController {
     //确认加入考核
 
     @RequestMapping(value = "/exam/confirm/{token:.+}",method = {RequestMethod.GET,RequestMethod.POST})
-    public Result<?> confirmIntoExam(
-            @PathVariable("token") String token
-
+    public String confirmIntoExam(
+            @PathVariable("token") String token,
+            Model model
     ) {
         var tokenData = registerCollectionService.loadFromToken(token);
-        registerCollectionService.confirmIntoExam(tokenData.examId, tokenData.studentId);
+        registerCollectionService.confirmIntoExam(tokenData.examId, tokenData.studentId,model);
 
         logger.SuccessOperate("Student Confirm Enter Exam",
                 Info.of(tokenData.studentId, "StudentID"),
                 Info.of(tokenData.examId, "ExamID"));
 
-        return Result.okResult(tokenData.studentId);
+        return "comfirmOK";
     }
 
     @PostMapping("/exam/works")
+    @ResponseBody
     public Result<?> uploadWorks(
             @RequestParam("examId") Long examId,
             @RequestParam("stuId") String id,
@@ -125,6 +132,7 @@ public class ExamCycleRegisterController {
     }
     @ExceptionHandler({BaseException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
     public Result<?> handleNotSelectTypeItem(BaseException exception, HttpServletRequest request) {
         logger.error(request, exception);
         return exception.toResult();

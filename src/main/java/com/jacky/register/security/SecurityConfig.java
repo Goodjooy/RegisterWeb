@@ -26,16 +26,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf()
                 .csrfTokenRepository(new CookieCsrfTokenRepository())
-                .ignoringAntMatchers("/api/csrf/token","/api/question/collection/**","/api/examCycle/collection/**");
-                //.disable();
+                .ignoringAntMatchers("/api/csrf/token",
+                        "/api/question/collection/**",
+                        "/api/examCycle/collection/**");
+        //.disable();
 
         http
                 .authorizeRequests()
-                .antMatchers("/api/question/**","/api/examCycle/**")
-                .hasAnyRole(UserRole.ADMIN.getName(), UserRole.SUPER_ADMIN.getName())
+                .antMatchers(
+                        "/api/question/collection/**",
+                        "/api/examCycle/collection/**",
+                        "/api/examCycle/collection/exam/confirm/*")
+                .permitAll()
 
-                .antMatchers("/api/question/collection/**","/api/examCycle/collection/**")
-                .permitAll();
+                .antMatchers("/api/question/**", "/api/examCycle/**")
+                .hasAnyRole(UserRole.ADMIN.getName(), UserRole.SUPER_ADMIN.getName());
 
         http
                 .formLogin()

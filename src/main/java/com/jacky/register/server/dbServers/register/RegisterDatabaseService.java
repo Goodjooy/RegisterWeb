@@ -17,8 +17,10 @@ import com.jacky.register.models.database.register.registerCollection.StudentExa
 import com.jacky.register.models.database.register.repository.*;
 import com.jacky.register.models.status.ExamCycleStatus;
 import com.jacky.register.models.status.ExamStatus;
+import com.jacky.register.server.dbServers.DepartmentServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,7 +38,8 @@ public class RegisterDatabaseService {
     StudentExamLinkRepository examLinkRepository;
     @Autowired
     ExamFinalCollectionRepository examFinalCollectionRepository;
-
+    @Autowired
+    DepartmentServer departmentServer;
 
     @Autowired
     RegisterQuestionRepository registerQuestionRepository;
@@ -189,7 +192,7 @@ public class RegisterDatabaseService {
         return result.get();
     }
 
-    public void studentConfirm(Integer stuId, Long examId) {
+    public void studentConfirm(Integer stuId, Long examId, Model model) {
         var exam = getExam(examId, GroupDepartment.lambadaDepartment());
         var examCycle = findExamCycleByIdAndDepartment(exam.examCycleID, GroupDepartment.lambadaDepartment());
         RegisterOperationService.checkExamCycle(examCycle);
@@ -211,6 +214,11 @@ public class RegisterDatabaseService {
 
             examLinkRepository.save(examLink);
         }
+
+        model.addAttribute("stuName",findStudentById(stuId).name)
+                .addAttribute("ECName",examCycle.name)
+                .addAttribute("depName",departmentServer.getDepartmentByID(examCycle.departmentID).name)
+                .addAttribute("EName",exam.name);
     }
 
     public Student findStudentById(Integer id) {
@@ -280,8 +288,10 @@ public class RegisterDatabaseService {
         //之前的考核连接
         var examLinks = getAllExamLink(previewExams);
         //之前考核未通过
-        if (examLinks.stream().filter(examLink1 -> examLink1.status.canBeContinue()).count() != examLinks.size() ||
-                examCycleStatus.canBeContinue())
+        var passedExamCount=examLinks.stream().filter(examLink1 -> examLink1.status.canBeContinue()).count();
+
+
+        if (passedExamCount != examLinks.size() || !examCycleStatus.canBeContinue())
             throw new StudentNotPassAllPreExamException(studentId);
     }
 

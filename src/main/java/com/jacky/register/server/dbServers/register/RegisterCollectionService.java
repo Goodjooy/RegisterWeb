@@ -22,6 +22,7 @@ import com.jacky.register.server.localFiles.ExamWorksFileStorageService;
 import com.jacky.register.server.modelTransformServers.RegisterRespondTransformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -110,8 +111,8 @@ public class RegisterCollectionService {
         return registerDatabaseService.newStudent(student, examCycle.id);
     }
 
-    public void confirmIntoExam(long examId, Integer studentId) {
-        registerDatabaseService.studentConfirm(studentId, examId);
+    public void confirmIntoExam(long examId, Integer studentId, Model model) {
+        registerDatabaseService.studentConfirm(studentId, examId,model);
     }
 
     final static String examIdName="examId";

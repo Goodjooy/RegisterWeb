@@ -4,10 +4,11 @@ import com.jacky.register.models.database.group.GroupDepartment;
 import com.jacky.register.models.database.quetionail.subItems.ItemSort;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Set;
 
 @Entity
-public class Questionable {
+public class Questionable implements Serializable {
     @Id
     @GeneratedValue
     public
